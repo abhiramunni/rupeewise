@@ -7,117 +7,157 @@
 <meta name="description" content="Convert currencies with editable indicative rates and plan your trip budget — all in one page, no signup.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ============ Realtime-Colors palette -> CSS variables ============ */
 :root{
-  --paper:#faf7f0; --card:#ffffff; --ink:#1c2420; --muted:#5d6b63;
-  --green:#166b4d; --green-dark:#0e4f38; --gold:#c9a227; --gold-soft:#f3e9c8;
-  --line:#e7e0d2; --danger:#c0392b; --radius:16px;
-  --shadow:0 10px 30px rgba(22,60,45,.08);
+  --bg:#050315; --text:#fbfbfe; --primary:#2f27ce; --secondary:#dedcff; --accent:#433bff;
+  --ink-soft:#b9bce8; --muted:#8f93c9;
+  --glass:rgba(251,251,254,.055); --glass-strong:rgba(251,251,254,.09);
+  --line:rgba(251,251,254,.12); --line-soft:rgba(251,251,254,.07);
+  --danger:#e5484d; --warn:#e8a13d; --ok:#4cc38a;
+  --radius:18px;
+  --shadow:0 18px 50px rgba(2,2,12,.55);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:920px;margin:0 auto;padding:0 18px 90px}
-/* ---------- header ---------- */
-.topbar{display:flex;align-items:center;gap:12px;padding:22px 0 6px}
-.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
-.logo svg{width:26px;height:26px}
-.brand h1{font-family:'Fraunces',serif;font-size:24px;font-weight:700;letter-spacing:-.01em}
-.brand h1 em{font-style:normal;color:var(--green)}
-.brand p{font-size:12.5px;color:var(--muted)}
-.disclaimer{margin:14px 0 0;font-size:12px;color:#7a6a2f;background:#fbf3da;border:1px solid #eadfae;border-radius:10px;padding:9px 13px;display:flex;gap:9px;align-items:flex-start}
-.disclaimer svg{flex:none;width:15px;height:15px;margin-top:2px}
-/* ---------- tabs ---------- */
-.tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);padding:12px 0;margin:14px 0 22px;border-bottom:1px solid var(--line)}
-.tabs .row{max-width:920px;margin:0 auto;padding:0 18px;display:flex;gap:8px}
-.tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--card);font:600 13.5px 'Inter';color:var(--muted);cursor:pointer;transition:all .25s}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#mesh{position:fixed;inset:0;z-index:-1;opacity:.55;pointer-events:none}
+.wrap{max-width:960px;margin:0 auto;padding:0 18px 90px;position:relative}
+/* ============ hero ============ */
+.hero{padding:34px 0 0;position:relative}
+.hero-inner{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.brand-block{display:flex;align-items:center;gap:16px}
+/* liquid-logo: morphing blob mark with ₹ */
+.logo-blob{width:64px;height:64px;flex:none;filter:drop-shadow(0 8px 22px rgba(67,59,255,.45))}
+.logo-blob text{font:800 30px 'Inter',sans-serif;fill:#fbfbfe}
+.brand h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.brand h1 .wise{background:linear-gradient(120deg,var(--accent),#8b7bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{font-size:13.5px;color:var(--muted);margin-top:3px}
+.coin-wrap{width:220px;height:220px;position:relative}
+.coin-wrap canvas{width:100%;height:100%;display:block}
+.coin-glow{position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle,rgba(67,59,255,.35),transparent 70%);filter:blur(10px);z-index:-1}
+.disclaimer{margin:20px 0 0;font-size:12.5px;color:var(--ink-soft);background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px 15px;display:flex;gap:10px;align-items:flex-start;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.disclaimer svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--accent)}
+.disclaimer b{color:var(--text)}
+/* Haikei-style wave divider */
+.wavediv{display:block;width:100%;height:70px;margin:26px 0 4px}
+/* ============ tabs (kokonutui sliding indicator) ============ */
+.tabs{position:sticky;top:0;z-index:20;margin:6px 0 24px}
+.tabs-inner{position:relative;display:flex;gap:4px;background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:5px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tab-indicator{position:absolute;top:5px;bottom:5px;left:0;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 6px 18px rgba(67,59,255,.4)}
+.tab{flex:1;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border:none;background:transparent;font:600 13.5px 'Inter',sans-serif;color:var(--muted);cursor:pointer;transition:color .25s;border-radius:11px}
 .tab svg{width:17px;height:17px}
-.tab.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 16px rgba(22,107,77,.28)}
-.tab:not(.active):hover{border-color:var(--green);color:var(--green)}
-/* ---------- cards ---------- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:18px}
-.card h2{font-family:'Fraunces',serif;font-size:21px;margin-bottom:4px;display:flex;align-items:center;gap:10px}
-.card h2 svg{width:22px;height:22px;color:var(--green)}
-.card .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.tab.active{color:#fff}
+.tab:not(.active):hover{color:var(--secondary)}
+/* ============ glass cards (liquid-glass) ============ */
+.card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-bottom:20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,251,254,.35),transparent);pointer-events:none}
+.card h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card h2 svg{width:22px;height:22px;color:var(--accent)}
+.card h2 .acctick{width:26px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.card .sub{font-size:13px;color:var(--muted);margin-bottom:20px}
 section.tabpane{display:none}
-section.tabpane.show{display:block;animation:fadeUp .45s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-/* ---------- converter ---------- */
+section.tabpane.show{display:block}
+/* ============ converter ============ */
 .conv-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:16px}
-.field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
-.field input,.field select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font:600 16px 'Inter';color:var(--ink);background:#fff;transition:border-color .2s}
-.field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(22,107,77,.12)}
-.swapbtn{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--line);background:var(--gold-soft);cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .25s;margin-bottom:2px}
-.swapbtn:hover{background:#efe0a8}
-.swapbtn svg{width:20px;height:20px;color:#7a5f12}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font:600 16px 'Inter',sans-serif;color:var(--text);background:rgba(251,251,254,.06);transition:border-color .2s,box-shadow .2s,background .2s;appearance:none}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238f93c9' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field select option{background:#0d0b26;color:#fbfbfe}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,59,255,.22);background:rgba(251,251,254,.09)}
+.swapbtn{width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:var(--glass-strong);cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .25s,border-color .25s;margin-bottom:2px;backdrop-filter:blur(8px)}
+.swapbtn:hover{background:rgba(67,59,255,.25);border-color:var(--accent)}
+.swapbtn svg{width:20px;height:20px;color:var(--secondary)}
 .swapbtn.spin svg{animation:spin .45s ease}
 @keyframes spin{to{transform:rotate(180deg)}}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.chip{padding:8px 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font:600 13px 'Inter';color:var(--muted);cursor:pointer;transition:all .2s}
-.chip:hover{border-color:var(--gold);color:#7a5f12;background:#fdf8e6}
-.result{background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:14px;padding:26px 24px;color:#fff;position:relative;overflow:hidden}
-.result::after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.35),transparent 70%)}
+.chip{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(251,251,254,.05);font:600 13px 'Inter',sans-serif;color:var(--ink-soft);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--accent);color:#fff;background:rgba(67,59,255,.2);transform:translateY(-1px)}
+/* result panel with shimmer sweep */
+.result{background:linear-gradient(135deg,var(--primary),var(--accent) 130%);border-radius:14px;padding:26px 24px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 14px 40px rgba(47,39,206,.35)}
+.result::before{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+.result::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none}
+.result.sweep::after{animation:sweep .8s ease}
+@keyframes sweep{to{left:130%}}
 .result .from-line{font-size:13px;opacity:.85;margin-bottom:6px}
-.result .big{font-family:'Fraunces',serif;font-size:clamp(34px,7vw,52px);font-weight:700;letter-spacing:-.01em}
-.result .rate-line{margin-top:10px;font-size:13px;color:var(--gold-soft);display:flex;align-items:center;gap:7px}
+.result .big{font-size:clamp(34px,7vw,52px);font-weight:800;letter-spacing:-.03em}
+.result .rate-line{margin-top:10px;font-size:13px;color:#e4e1ff;display:flex;align-items:center;gap:7px}
 .result .rate-line svg{width:14px;height:14px;flex:none}
-.formula{margin-top:14px;font-size:12.5px;color:var(--muted);background:#f4f1e8;border-radius:10px;padding:10px 14px}
-.formula code{font-family:ui-monospace,monospace;background:#e9e3d2;padding:1px 7px;border-radius:6px;font-size:12px}
-/* ---------- rates table ---------- */
+.formula{margin-top:14px;font-size:12.5px;color:var(--muted);background:rgba(251,251,254,.05);border:1px solid var(--line-soft);border-radius:10px;padding:10px 14px}
+.formula code{font-family:ui-monospace,monospace;background:rgba(67,59,255,.18);border:1px solid rgba(67,59,255,.3);padding:1px 7px;border-radius:6px;font-size:12px;color:#d7d4ff}
+/* ============ rates table ============ */
 .rtable{width:100%;border-collapse:collapse;font-size:14px}
-.rtable th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:2px solid var(--line)}
-.rtable td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rtable th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--line)}
+.rtable td{padding:10px 8px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
 .rtable tr:last-child td{border-bottom:none}
-.rcode{font-weight:700;display:flex;align-items:center;gap:9px}
-.rcode .flagdot{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);display:grid;place-items:center;font:700 11px 'Inter';color:#7a5f12;flex:none}
-.rname{font-size:12.5px;color:var(--muted)}
-.rateinput{width:110px;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;font:600 14px 'Inter';color:var(--ink)}
-.rateinput:focus{outline:none;border-color:var(--green)}
+.rtable tbody tr{transition:background .2s}
+.rtable tbody tr:hover{background:rgba(251,251,254,.03)}
+.rcode{font-weight:700;display:flex;align-items:center;gap:10px}
+.rcode .curdot{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font:700 11px 'Inter',sans-serif;color:#fff;flex:none;box-shadow:0 4px 12px rgba(67,59,255,.35)}
+.rname{font-size:12.5px;color:var(--muted);font-weight:400}
+.rateinput{width:115px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font:600 14px 'Inter',sans-serif;color:var(--text);background:rgba(251,251,254,.06)}
+.rateinput:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,59,255,.2)}
 .runit{font-size:12.5px;color:var(--muted)}
 .btnrow{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font:600 14px 'Inter';cursor:pointer;border:none;transition:transform .15s,box-shadow .2s}
+/* buttons: motion-primitives press-scale + magnetic */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font:600 14px 'Inter',sans-serif;cursor:pointer;border:none;transition:transform .15s,box-shadow .2s,background .2s,border-color .2s;will-change:transform}
 .btn svg{width:16px;height:16px}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--green);color:#fff;box-shadow:0 6px 16px rgba(22,107,77,.25)}
-.btn-primary:hover{background:var(--green-dark)}
-.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--muted)}
-.btn-ghost:hover{border-color:var(--danger);color:var(--danger)}
-.btn-gold{background:var(--gold);color:#231a04}
-.btn-gold:hover{background:#b3921f}
-/* ---------- trip planner ---------- */
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 8px 22px rgba(67,59,255,.4)}
+.btn-primary:hover{box-shadow:0 10px 28px rgba(67,59,255,.55);filter:brightness(1.08)}
+.btn-ghost{background:rgba(251,251,254,.05);border:1px solid var(--line);color:var(--ink-soft)}
+.btn-ghost:hover{border-color:var(--danger);color:#ff8a8e;background:rgba(229,72,77,.08)}
+.btn-accent{background:rgba(67,59,255,.16);border:1px solid rgba(67,59,255,.45);color:#d7d4ff}
+.btn-accent:hover{background:rgba(67,59,255,.28);border-color:var(--accent)}
+/* ============ trip planner ============ */
 .trip-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .expform{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin-bottom:18px;align-items:end}
-.expform .btn{height:48px}
+.expform .btn{height:50px}
+/* donut chart (bklit-ui spirit) */
+.spendwrap{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:rgba(251,251,254,.04);border:1px solid var(--line-soft);border-radius:14px;padding:18px;margin-bottom:18px}
+.spendwrap[hidden]{display:none}
+.donut{width:150px;height:150px;flex:none;transform:rotate(-90deg)}
+.donut .seg{fill:none;stroke-width:22;transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1),stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.donut .track{fill:none;stroke:rgba(251,251,254,.08);stroke-width:22}
+.donut-center{transform:rotate(90deg);text-anchor:middle}
+.donut-center .amt{font:800 19px 'Inter',sans-serif;fill:#fbfbfe;letter-spacing:-.02em}
+.donut-center .lbl{font:600 10px 'Inter',sans-serif;fill:#8f93c9;letter-spacing:.08em}
+.legend{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.legend .li{display:flex;align-items:center;gap:9px;color:var(--ink-soft)}
+.legend .dot{width:11px;height:11px;border-radius:4px;flex:none}
+.legend .v{margin-left:auto;font-weight:700;color:var(--text)}
 .explist{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
-.expitem{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;animation:fadeUp .3s ease both}
+.expitem{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line-soft);border-radius:12px;background:rgba(251,251,254,.045);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .expitem .cat{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;flex:none}
-.cat-Stay{background:#e3ecf7;color:#2456a0}.cat-Food{background:#fbeed3;color:#9a5b00}.cat-Transport{background:#e2f2e8;color:#166b4d}.cat-Shopping{background:#f3e2f5;color:#7c2f8a}.cat-Other{background:#eceff1;color:#546e7a}
+.cat-Stay{background:rgba(142,162,255,.14);color:#a9b8ff}.cat-Food{background:rgba(232,176,125,.14);color:#f0bd8d}.cat-Transport{background:rgba(111,211,182,.14);color:#8fdcbc}.cat-Shopping{background:rgba(199,155,238,.14);color:#d3aef2}.cat-Other{background:rgba(154,163,178,.16);color:#b6bdc9}
 .expitem .info{flex:1;min-width:0}
 .expitem .info b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .expitem .info small{color:var(--muted);font-size:12.5px}
-.expitem .inr{font:700 15px 'Inter';color:var(--green-dark);white-space:nowrap}
-.delbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s}
+.expitem .inr{font:700 15px 'Inter',sans-serif;color:#d7d4ff;white-space:nowrap}
+.delbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:rgba(251,251,254,.05);cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s}
 .delbtn svg{width:15px;height:15px;color:var(--muted)}
-.delbtn:hover{border-color:var(--danger);background:#fdecea}
-.delbtn:hover svg{color:var(--danger)}
+.delbtn:hover{border-color:var(--danger);background:rgba(229,72,77,.12)}
+.delbtn:hover svg{color:#ff8a8e}
 .empty{border:1.5px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted);font-size:14px}
-.empty svg{width:34px;height:34px;margin-bottom:8px;color:#b9c2bb}
+.empty svg{width:34px;height:34px;margin-bottom:8px;color:#3d4180}
 .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0}
-.totalbox{background:linear-gradient(135deg,#f6f1e2,#efe6c8);border:1px solid #e3d49a;border-radius:12px;padding:16px}
-.totalbox small{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5f12}
-.totalbox .v{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#231a04;margin-top:4px}
+.totalbox{background:rgba(67,59,255,.1);border:1px solid rgba(67,59,255,.28);border-radius:12px;padding:16px}
+.totalbox small{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a9b8ff}
+.totalbox .v{font-size:24px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-top:4px}
 .budgetwrap{margin-top:6px}
-.budgetbar{height:14px;border-radius:99px;background:#eee9d8;overflow:hidden;margin:10px 0 6px}
-.budgetfill{height:100%;border-radius:99px;background:var(--green);width:0%;transition:width .8s cubic-bezier(.2,.8,.2,1),background .4s}
+.budgetbar{height:14px;border-radius:99px;background:rgba(251,251,254,.09);overflow:hidden;margin:10px 0 6px}
+.budgetfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width .8s cubic-bezier(.2,.8,.2,1),background .4s}
 .budgetmeta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
-/* ---------- toast / modal ---------- */
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font:600 13.5px 'Inter';opacity:0;pointer-events:none;transition:all .3s;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+/* ============ toast ============ */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#14122e;border:1px solid var(--line);color:#fff;padding:12px 22px;border-radius:12px;font:600 13.5px 'Inter',sans-serif;opacity:0;pointer-events:none;transition:all .3s;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in{opacity:1;transform:none}
-footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0 10px;border-top:1px solid var(--line);margin-top:10px}
+.reveal{opacity:0}
+footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0 10px;border-top:1px solid var(--line-soft);margin-top:10px}
 @media(max-width:640px){
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .brand-block{justify-content:center}
+  .coin-wrap{width:160px;height:160px;margin:0 auto}
   .conv-grid{grid-template-columns:1fr;gap:12px}
   .swapbtn{margin:0 auto;transform:rotate(90deg)}
   .expform{grid-template-columns:1fr 1fr}
@@ -125,35 +165,62 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   .card{padding:18px}
   .tab span.t{display:none}
   .rtable .rname{display:none}
+  .spendwrap{grid-template-columns:1fr;justify-items:center}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
-  .reveal{opacity:1;transform:none}
-  section.tabpane.show{animation:none}
+  .reveal{opacity:1}
+  .tab-indicator{transition:none}
 }
 </style>
 </head>
 <body>
+<canvas id="mesh" aria-hidden="true"></canvas>
 <div class="wrap">
 
-  <header class="topbar">
-    <div class="logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3M9 13c6.667 0 6.667-10 0-10"/></svg>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand-block">
+        <!-- liquid-logo: morphing blob containing the ₹ glyph -->
+        <div class="logo-blob" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="blobg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#2f27ce"/><stop offset="1" stop-color="#433bff"/>
+              </linearGradient>
+            </defs>
+            <path id="blobpath" fill="url(#blobg)"/>
+            <text x="50" y="50" text-anchor="middle" dominant-baseline="central">₹</text>
+          </svg>
+        </div>
+        <div class="brand">
+          <h1>Rupee<span class="wise">Wise</span></h1>
+          <p>Currency converter &amp; trip budget planner</p>
+        </div>
+      </div>
+      <!-- react-three-fiber honest equivalent: Three.js metallic coin -->
+      <div class="coin-wrap">
+        <div class="coin-glow"></div>
+        <canvas id="coin" aria-label="Rotating 3D coin visual" role="img"></canvas>
+      </div>
     </div>
-    <div class="brand">
-      <h1>Rupee<em>Wise</em></h1>
-      <p>Currency converter &amp; trip budget planner</p>
+    <div class="disclaimer reveal" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span><b>Indicative rates for estimation only</b> — seeded October 2026. Tap any rate in the Rates tab to update it. Always check your bank or card issuer for live rates before paying.</span>
     </div>
   </header>
 
-  <div class="disclaimer" role="note">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-    <span><b>Indicative rates for estimation only</b> — seeded October 2026. Tap any rate in the Rates tab to update it. Always check your bank or card issuer for live rates before paying.</span>
-  </div>
+  <!-- Haikei-style wave divider -->
+  <svg class="wavediv" viewBox="0 0 960 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C160,70 320,10 480,35 C640,60 800,15 960,40 L960,70 L0,70 Z" fill="rgba(67,59,255,.10)"/>
+    <path d="M0,50 C180,75 360,25 540,45 C720,65 840,30 960,50 L960,70 L0,70 Z" fill="rgba(47,39,206,.16)"/>
+  </svg>
 
+  <!-- kokonutui / motion-primitives sliding tab indicator -->
   <nav class="tabs" aria-label="Sections">
-    <div class="row">
+    <div class="tabs-inner" id="tabs-inner">
+      <div class="tab-indicator" id="tab-indicator"></div>
       <button class="tab active" id="tab-converter" data-tab="converter" aria-controls="pane-converter">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
         <span class="t">Converter</span>
@@ -172,7 +239,7 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <!-- ============ CONVERTER ============ -->
   <section class="tabpane show" id="pane-converter" role="tabpanel" aria-labelledby="tab-converter">
     <div class="card reveal">
-      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>Currency converter</h2>
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>Currency converter <span class="acctick"></span></h2>
       <p class="sub">Type an amount, pick currencies, done. Rates come from your editable table.</p>
       <div class="conv-grid">
         <div class="field">
@@ -194,7 +261,7 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
         </div>
       </div>
       <div class="chips" id="c-chips" aria-label="Quick amounts"></div>
-      <div class="result" aria-live="polite">
+      <div class="result" id="result-panel" aria-live="polite">
         <div class="from-line" id="r-fromline">1,000 US Dollar →</div>
         <div class="big" id="r-big">₹88,500.00</div>
         <div class="rate-line">
@@ -209,7 +276,7 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <!-- ============ TRIP PLANNER ============ -->
   <section class="tabpane" id="pane-trip" role="tabpanel" aria-labelledby="tab-trip">
     <div class="card reveal">
-      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>Trip budget planner</h2>
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>Trip budget planner <span class="acctick"></span></h2>
       <p class="sub">Log spending in any currency — everything converts to INR at your current rates.</p>
 
       <div class="trip-controls">
@@ -246,11 +313,24 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
             <option>Stay</option><option>Food</option><option>Transport</option><option>Shopping</option><option>Other</option>
           </select>
         </div>
-        <button class="btn btn-primary" type="submit" id="e-add">
+        <button class="btn btn-primary magnetic" type="submit" id="e-add">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Add
         </button>
       </form>
+
+      <!-- bklit-ui spirit: animated donut of spending by category -->
+      <div class="spendwrap" id="spend-wrap" hidden>
+        <svg class="donut" id="donut" viewBox="0 0 150 150" role="img" aria-label="Spending by category">
+          <circle class="track" cx="75" cy="75" r="54"></circle>
+          <g id="donut-segs"></g>
+          <g class="donut-center">
+            <text class="amt" x="75" y="72" id="donut-total">₹0</text>
+            <text class="lbl" x="75" y="90">TOTAL</text>
+          </g>
+        </svg>
+        <div class="legend" id="donut-legend"></div>
+      </div>
 
       <div class="explist" id="exp-list"></div>
 
@@ -266,11 +346,11 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
       </div>
 
       <div class="btnrow">
-        <button class="btn btn-gold" id="t-export">
+        <button class="btn btn-accent magnetic" id="t-export">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           Copy summary
         </button>
-        <button class="btn btn-ghost" id="t-clear">
+        <button class="btn btn-ghost magnetic" id="t-clear">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
           Clear all
         </button>
@@ -281,14 +361,14 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <!-- ============ RATES ============ -->
   <section class="tabpane" id="pane-rates" role="tabpanel" aria-labelledby="tab-rates">
     <div class="card reveal">
-      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Indicative rates</h2>
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Indicative rates <span class="acctick"></span></h2>
       <p class="sub">Units of INR per 1 unit of foreign currency. Tap any rate to edit — changes save automatically and apply everywhere.</p>
       <table class="rtable" aria-label="Currency rates versus INR">
         <thead><tr><th>Currency</th><th>Rate (₹)</th><th>Means</th></tr></thead>
         <tbody id="rates-body"></tbody>
       </table>
       <div class="btnrow">
-        <button class="btn btn-ghost" id="rates-reset">
+        <button class="btn btn-ghost magnetic" id="rates-reset">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Reset to seeded rates
         </button>
@@ -301,9 +381,14 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
 </div>
 
 <div class="toast" id="toast" role="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/@motionone/dom@10.18.0/dist/motion-umd.dev.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script>
 (function(){
 "use strict";
+var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var M = window.Motion || null; /* motion.dev — Motion One */
+var FINE = window.matchMedia && window.matchMedia("(pointer:fine)").matches;
 
 /* ================= data ================= */
 var SEED_RATES = { USD:88.5, EUR:96.2, GBP:112.4, AED:24.1, SGD:65.3, JPY:0.59, AUD:57.1, CAD:63.2, CHF:99.8 };
@@ -314,6 +399,8 @@ var CURR = {
   CHF:{name:"Swiss Franc", sym:"CHF"}
 };
 var ORDER = ["INR","USD","EUR","GBP","AED","SGD","JPY","AUD","CAD","CHF"];
+var CATS = ["Stay","Food","Transport","Shopping","Other"];
+var CAT_COLORS = { Stay:"#8ea2ff", Food:"#e8b07d", Transport:"#6fd3b6", Shopping:"#c79bee", Other:"#9aa3b2" };
 var LS_RATES="rw_rates_v1", LS_EXP="rw_expenses_v1", LS_SET="rw_settings_v1";
 
 function loadJSON(key, fallback){
@@ -338,6 +425,7 @@ function saveSettings(){ saveJSON(LS_SET, {days:tripDays, budget:budget, disp:di
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 var inrFmt = new Intl.NumberFormat("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+var inrShort = new Intl.NumberFormat("en-IN",{maximumFractionDigits:0});
 function fmtRate(r){ return r>=1 ? r.toFixed(2) : String(Number(r.toPrecision(3))); }
 function fmtMoney(amount, code){
   var sym = CURR[code].sym;
@@ -352,12 +440,11 @@ function toast(msg){
   var t=$("toast"); t.textContent=msg; t.classList.add("show");
   clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove("show");},2400);
 }
-var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* count-up animation for the big result */
 var rafId=null;
 function countUp(el, from, to, code){
-  if(reducedMotion || !isFinite(to)){ el.textContent = fmtMoney(to, code); return; }
+  if(RM || !isFinite(to)){ el.textContent = fmtMoney(to, code); return; }
   cancelAnimationFrame(rafId);
   var start=null, dur=550;
   function step(ts){
@@ -369,25 +456,190 @@ function countUp(el, from, to, code){
   rafId=requestAnimationFrame(step);
 }
 
-/* ================= tabs ================= */
+/* shimmer sweep on the result panel (motion-primitives detail) */
+function sweep(){
+  var p=$("result-panel");
+  p.classList.remove("sweep"); void p.offsetWidth; p.classList.add("sweep");
+}
+
+/* ================= motion: spring entrances + reveals ================= */
+function motionIn(){
+  var cards=document.querySelectorAll(".card.reveal, .disclaimer.reveal");
+  if(M && !RM){
+    M.animate(".hero-inner",{opacity:[0,1],y:[26,0]},{duration:.8,easing:[.2,.8,.2,1]});
+    M.animate(".card.reveal, .disclaimer.reveal",
+      {opacity:[0,1],y:[26,0]},
+      {duration:.7,delay:M.stagger(.09),easing:M.spring({stiffness:110,damping:17})});
+    if("IntersectionObserver" in window){
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); } });
+      },{threshold:.05});
+      cards.forEach(function(c){ io.observe(c); });
+    }
+  } else {
+    cards.forEach(function(c){ c.style.opacity=1; });
+    var h=document.querySelector(".hero-inner"); if(h) h.style.opacity=1;
+  }
+}
+
+/* magnetic buttons (motion detail, fine pointers only) */
+function magnetic(){
+  if(!M || RM || !FINE) return;
+  document.querySelectorAll(".magnetic").forEach(function(b){
+    b.addEventListener("mousemove",function(e){
+      var r=b.getBoundingClientRect();
+      var x=e.clientX-(r.left+r.width/2), y=e.clientY-(r.top+r.height/2);
+      M.animate(b,{x:x*.18,y:y*.22},{duration:.3,easing:"ease-out"});
+    });
+    b.addEventListener("mouseleave",function(){
+      M.animate(b,{x:0,y:0},{duration:.6,easing:M.spring({stiffness:200,damping:16})});
+    });
+  });
+}
+
+/* ================= tabs + sliding indicator ================= */
 var tabNames=["converter","trip","rates"];
+function moveIndicator(name){
+  var ind=$("tab-indicator"), btn=$("tab-"+name), inner=$("tabs-inner");
+  if(!ind||!btn||!inner) return;
+  var x=btn.offsetLeft-inner.offsetLeft, w=btn.offsetWidth;
+  if(M && !RM){
+    M.animate(ind,{x:x,width:w},{duration:.5,easing:M.spring({stiffness:260,damping:26})});
+  } else { ind.style.transform="translateX("+x+"px)"; ind.style.width=w+"px"; }
+}
 function showTab(name, push){
   if(tabNames.indexOf(name)<0) name="converter";
   tabNames.forEach(function(n){
     $("tab-"+n).classList.toggle("active", n===name);
-    $("pane-"+n).classList.toggle("show", n===name);
+    var pane=$("pane-"+n), on=(n===name);
+    if(on && !pane.classList.contains("show")){
+      pane.classList.add("show");
+      if(M && !RM){
+        var card=pane.querySelector(".card");
+        M.animate(card,{opacity:[0,1],y:[18,0]},{duration:.5,easing:M.spring({stiffness:130,damping:18})});
+      }
+    } else if(!on){ pane.classList.remove("show"); }
   });
+  moveIndicator(name);
   if(push!==false){ try{ history.replaceState(null,"","#"+name); }catch(e){} }
 }
 tabNames.forEach(function(n){ $("tab-"+n).addEventListener("click",function(){showTab(n);}); });
 (function(){ var h=(location.hash||"").replace("#",""); showTab(h,false); })();
 window.addEventListener("hashchange",function(){ showTab((location.hash||"").replace("#",""),false); });
+window.addEventListener("resize",function(){
+  var cur="converter";
+  tabNames.forEach(function(n){ if($("tab-"+n).classList.contains("active")) cur=n; });
+  moveIndicator(cur);
+});
 
-/* reveal on scroll */
-var io = new IntersectionObserver(function(es){
-  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
-},{threshold:.1});
-document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+/* ================= shadergradient-style mesh canvas ================= */
+(function mesh(){
+  var cv=$("mesh"); if(!cv) return;
+  var ctx=cv.getContext("2d");
+  var W,H,DPR=Math.min(window.devicePixelRatio||1,1.25);
+  function size(){ W=window.innerWidth; H=window.innerHeight; cv.width=W*DPR*.5; cv.height=H*DPR*.5; cv.style.width=W+"px"; cv.style.height=H+"px"; }
+  size(); window.addEventListener("resize",size);
+  var blobs=[
+    {c:"47,39,206",  r:.42, sx:.22, sy:.18, a:0,   sp:.00021, ph:0},
+    {c:"67,59,255",  r:.36, sx:.78, sy:.32, a:.8,  sp:.00016, ph:2.1},
+    {c:"109,88,255", r:.30, sx:.55, sy:.85, a:.55, sp:.00013, ph:4.2},
+    {c:"30,20,120",  r:.5,  sx:.85, sy:.75, a:.5,  sp:.00011, ph:1.2}
+  ];
+  function draw(t){
+    ctx.setTransform(DPR*.5,0,0,DPR*.5,0,0);
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle="#050315"; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation="lighter";
+    blobs.forEach(function(b){
+      var x=(b.sx+.09*Math.sin(t*b.sp+b.ph))*W, y=(b.sy+.09*Math.cos(t*b.sp*1.3+b.ph))*H;
+      var r=b.r*Math.max(W,H);
+      var g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,"rgba("+b.c+","+(.20*b.a+.10)+")");
+      g.addColorStop(1,"rgba("+b.c+",0)");
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill();
+    });
+    ctx.globalCompositeOperation="source-over";
+  }
+  if(RM){ draw(1200); return; }
+  var running=true;
+  document.addEventListener("visibilitychange",function(){ running=!document.hidden; if(running) requestAnimationFrame(loop); });
+  function loop(t){ if(!running) return; draw(t||0); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+})();
+
+/* ================= liquid-logo: morphing blob ================= */
+(function blob(){
+  var path=$("blobpath"); if(!path) return;
+  var N=14, R=40, CX=50, CY=50;
+  function pts(t){
+    var p=[];
+    for(var i=0;i<N;i++){
+      var a=i/N*Math.PI*2;
+      var r=R*(1+.10*Math.sin(3*a+t*.0009)+.07*Math.sin(2*a-t*.0007+1.4)+.05*Math.sin(5*a+t*.0004));
+      p.push([CX+r*Math.cos(a), CY+r*Math.sin(a)]);
+    }
+    return p;
+  }
+  function smooth(p){
+    var d="M"+p[0][0].toFixed(1)+","+p[0][1].toFixed(1);
+    for(var i=0;i<p.length;i++){
+      var p0=p[(i-1+p.length)%p.length], p1=p[i], p2=p[(i+1)%p.length], p3=p[(i+2)%p.length];
+      var c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+      var c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+      d+="C"+c1x.toFixed(1)+","+c1y.toFixed(1)+" "+c2x.toFixed(1)+","+c2y.toFixed(1)+" "+p2[0].toFixed(1)+","+p2[1].toFixed(1);
+    }
+    return d+"Z";
+  }
+  if(RM){ path.setAttribute("d", smooth(pts(800))); return; }
+  (function loop(t){ path.setAttribute("d", smooth(pts(t||0))); requestAnimationFrame(loop); })(0);
+})();
+
+/* ================= three.js coin (r3f honest equivalent) ================= */
+(function coin(){
+  var cv=$("coin"); if(!cv || !window.THREE) { if(cv) cv.style.display="none"; return; }
+  var SIZE=220;
+  var renderer;
+  try{
+    renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
+  }catch(e){ cv.style.display="none"; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(SIZE,SIZE,false);
+  var scene=new THREE.Scene();
+  var cam=new THREE.PerspectiveCamera(38,SIZE/SIZE,.1,100); cam.position.z=6.2;
+  var geo=new THREE.TorusKnotGeometry(1.35,.42,160,24);
+  var mat=new THREE.MeshStandardMaterial({color:0x433bff,metalness:.85,roughness:.28,emissive:0x1a1440,emissiveIntensity:.35});
+  var knot=new THREE.Mesh(geo,mat); scene.add(knot);
+  scene.add(new THREE.AmbientLight(0xdedcff,.55));
+  var key=new THREE.DirectionalLight(0xffffff,1.1); key.position.set(4,5,6); scene.add(key);
+  var rim=new THREE.PointLight(0x433bff,2.2,30); rim.position.set(-5,-2,3); scene.add(rim);
+  var rupee=null;
+  function drawGlyph(){
+    var c=document.createElement("canvas"); c.width=c.height=256;
+    var g=c.getContext("2d");
+    g.fillStyle="#fbfbfe"; g.font="800 150px Inter,sans-serif";
+    g.textAlign="center"; g.textBaseline="middle"; g.fillText("₹",128,140);
+    var tex=new THREE.CanvasTexture(c);
+    rupee=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5),
+      new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.92}));
+    rupee.position.z=1.62; knot.add(rupee);
+  }
+  drawGlyph();
+  var visible=true;
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(visible&&!RM) requestAnimationFrame(tick); },{threshold:.05}).observe(cv);
+  }
+  function render(){ renderer.render(scene,cam); }
+  if(RM){ knot.rotation.set(.6,.4,0); render(); return; }
+  var last=0;
+  function tick(t){
+    if(!visible || document.hidden) return;
+    var dt=Math.min((t-last)/1000,.05); last=t;
+    knot.rotation.y+=dt*.45; knot.rotation.x+=dt*.12;
+    knot.position.y=Math.sin(t*.0011)*.14;
+    render(); requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
 
 /* ================= converter ================= */
 var fromSel=$("c-from"), toSel=$("c-to"), amtInput=$("c-amount");
@@ -398,7 +650,7 @@ ORDER.forEach(function(c){
 fromSel.value="USD"; toSel.value="INR";
 
 var lastShown=0;
-function convert(){
+function convert(withSweep){
   var amt=parseFloat(amtInput.value);
   if(!isFinite(amt)||amt<0) amt=0;
   var f=fromSel.value, t=toSel.value;
@@ -410,17 +662,20 @@ function convert(){
   if(f!=="INR"&&t!=="INR") unitLine += "  ·  1 "+f+" = ₹"+fmtRate(rates[f]);
   $("r-rate").textContent = unitLine;
   $("r-formula").innerHTML = "Formula: <code>"+esc(inrFmt.format(amt))+" × "+esc(fmtRate(rates[f]||1))+" ÷ "+esc(fmtRate(rates[t]||1))+"</code> — amount × from-rate ÷ to-rate, via INR.";
+  if(withSweep!==false) sweep();
 }
 ["input","change"].forEach(function(ev){
-  amtInput.addEventListener(ev,convert); fromSel.addEventListener(ev,convert); toSel.addEventListener(ev,convert);
+  amtInput.addEventListener(ev,function(){convert(false);});
+  fromSel.addEventListener(ev,function(){convert(true);});
+  toSel.addEventListener(ev,function(){convert(true);});
 });
 $("c-swap").addEventListener("click",function(){
   var b=$("c-swap"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
-  var f=fromSel.value; fromSel.value=toSel.value; toSel.value=f; convert();
+  var f=fromSel.value; fromSel.value=toSel.value; toSel.value=f; convert(true);
 });
 [100,500,1000,5000,10000].forEach(function(v){
   var b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=inrFmt.format(v);
-  b.addEventListener("click",function(){ amtInput.value=v; convert(); });
+  b.addEventListener("click",function(){ amtInput.value=v; convert(true); });
   $("c-chips").appendChild(b);
 });
 
@@ -431,7 +686,7 @@ function renderRates(){
     if(c==="INR") return;
     var tr=document.createElement("tr");
     var td1=document.createElement("td");
-    td1.innerHTML='<span class="rcode"><span class="flagdot">'+c.slice(0,2)+'</span><span>'+c+'<br><span class="rname">'+esc(CURR[c].name)+'</span></span></span>';
+    td1.innerHTML='<span class="rcode"><span class="curdot">'+c.slice(0,2)+'</span><span>'+c+'<br><span class="rname">'+esc(CURR[c].name)+'</span></span></span>';
     var td2=document.createElement("td");
     var inp=document.createElement("input");
     inp.className="rateinput"; inp.type="number"; inp.min="0"; inp.step="any"; inp.value=rates[c];
@@ -439,7 +694,7 @@ function renderRates(){
     inp.addEventListener("change",function(){
       var v=parseFloat(inp.value);
       if(!(v>0)){ toast("Rate must be a positive number"); inp.value=rates[c]; return; }
-      rates[c]=v; saveJSON(LS_RATES,rates); convert(); renderTrip(); toast(c+" rate updated to ₹"+fmtRate(v));
+      rates[c]=v; saveJSON(LS_RATES,rates); convert(false); renderTrip(); toast(c+" rate updated to ₹"+fmtRate(v));
     });
     td2.appendChild(inp);
     var td3=document.createElement("td"); td3.className="runit"; td3.textContent="1 "+c+" = ₹"+fmtRate(rates[c]);
@@ -448,7 +703,7 @@ function renderRates(){
 }
 $("rates-reset").addEventListener("click",function(){
   rates=Object.assign({},SEED_RATES); saveJSON(LS_RATES,rates);
-  renderRates(); convert(); renderTrip(); toast("Rates reset to seeded values");
+  renderRates(); convert(false); renderTrip(); toast("Rates reset to seeded values");
 });
 
 /* ================= trip planner ================= */
@@ -475,14 +730,51 @@ $("exp-form").addEventListener("submit",function(ev){
   toast("Expense added");
 });
 
+/* donut chart: spending by category */
+function renderDonut(totalINR){
+  var wrap=$("spend-wrap");
+  if(!expenses.length){ wrap.hidden=true; return; }
+  wrap.hidden=false;
+  var byCat={};
+  expenses.forEach(function(x){ var inr=toINR(x.amount,x.cur); byCat[x.cat]=(byCat[x.cat]||0)+inr; });
+  var C=2*Math.PI*54, g=$("donut-segs"); g.innerHTML="";
+  var off=0;
+  CATS.forEach(function(cat){
+    var v=byCat[cat]||0; if(v<=0) return;
+    var frac=v/totalINR, len=frac*C;
+    var seg=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    seg.setAttribute("cx","75"); seg.setAttribute("cy","75"); seg.setAttribute("r","54");
+    seg.setAttribute("class","seg"); seg.setAttribute("stroke",CAT_COLORS[cat]);
+    seg.setAttribute("stroke-dasharray","0 "+C.toFixed(2));
+    seg.setAttribute("stroke-dashoffset",(-off).toFixed(2));
+    seg.setAttribute("stroke-linecap","butt");
+    g.appendChild(seg);
+    off+=len;
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      seg.setAttribute("stroke-dasharray",len.toFixed(2)+" "+C.toFixed(2));
+    });});
+  });
+  $("donut-total").textContent="₹"+inrShort.format(totalINR);
+  var leg=$("donut-legend"); leg.innerHTML="";
+  CATS.forEach(function(cat){
+    var v=byCat[cat]||0; if(v<=0) return;
+    var row=document.createElement("div"); row.className="li";
+    row.innerHTML='<span class="dot" style="background:'+CAT_COLORS[cat]+'"></span>'+esc(cat)+
+      '<span class="v">₹'+inrShort.format(v)+' · '+Math.round(v/totalINR*100)+'%</span>';
+    leg.appendChild(row);
+  });
+}
+
 function renderTrip(){
   var list=$("exp-list"); list.innerHTML="";
+  var totalINR=0;
+  expenses.forEach(function(x){ totalINR+=toINR(x.amount,x.cur); });
+
   if(!expenses.length){
     list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg><br>No expenses yet — add your first one above.</div>';
   }
-  var totalINR=0;
   expenses.forEach(function(x){
-    var inr=toINR(x.amount,x.cur); totalINR+=inr;
+    var inr=toINR(x.amount,x.cur);
     var div=document.createElement("div"); div.className="expitem";
     div.innerHTML='<span class="cat cat-'+esc(x.cat)+'">'+esc(x.cat)+'</span>'+
       '<div class="info"><b>'+esc(x.title)+'</b><small>'+esc(fmtMoney(x.amount,x.cur))+" "+esc(x.cur)+'</small></div>'+
@@ -495,6 +787,14 @@ function renderTrip(){
     div.appendChild(del); list.appendChild(div);
   });
 
+  /* motion: staggered expense entrances */
+  if(M && !RM && expenses.length){
+    M.animate(list.querySelectorAll(".expitem"),{opacity:[0,1],y:[14,0]},
+      {duration:.45,delay:M.stagger(.05),easing:[.2,.8,.2,1]});
+  }
+
+  renderDonut(totalINR);
+
   $("tot-inr").textContent="₹"+inrFmt.format(totalINR);
   $("tot-fx-label").textContent="Total in "+dispCur;
   $("tot-fx").textContent=fmtMoney(fromINR(totalINR,dispCur),dispCur);
@@ -506,7 +806,8 @@ function renderTrip(){
     bw.hidden=false;
     var pct=Math.min(totalINR/budget*100,100);
     var fill=$("budget-fill"); fill.style.width=pct+"%";
-    fill.style.background = pct<70 ? "var(--green)" : (pct<100 ? "var(--gold)" : "var(--danger)");
+    fill.style.background = pct>=100 ? "var(--danger)"
+      : (pct>=70 ? "linear-gradient(90deg,#b45309,#e8a13d)" : "linear-gradient(90deg,var(--primary),var(--accent))");
     $("budget-text").textContent="₹"+inrFmt.format(totalINR)+" of ₹"+inrFmt.format(budget);
     $("budget-pct").textContent=Math.round(totalINR/budget*100)+"% used";
   } else { bw.hidden=true; }
@@ -559,7 +860,15 @@ function fallbackCopy(text){
 }
 
 /* ================= init ================= */
-renderRates(); renderTrip(); convert();
+renderRates(); renderTrip(); convert(false);
+motionIn(); magnetic();
+if(M && !RM){
+  window.addEventListener("load",function(){ moveIndicator(
+    tabNames.filter(function(n){return $("tab-"+n).classList.contains("active");})[0]||"converter"
+  ); });
+} else {
+  moveIndicator(tabNames.filter(function(n){return $("tab-"+n).classList.contains("active");})[0]||"converter");
+}
 })();
 </script>
 </body>
