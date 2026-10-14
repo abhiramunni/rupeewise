@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RupeeWise — Currency Converter &amp; Trip Budget Planner</title>
+<meta name="description" content="Convert currencies with editable indicative rates and plan your trip budget — all in one page, no signup.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf7f0; --card:#ffffff; --ink:#1c2420; --muted:#5d6b63;
+  --green:#166b4d; --green-dark:#0e4f38; --gold:#c9a227; --gold-soft:#f3e9c8;
+  --line:#e7e0d2; --danger:#c0392b; --radius:16px;
+  --shadow:0 10px 30px rgba(22,60,45,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 18px 90px}
+/* ---------- header ---------- */
+.topbar{display:flex;align-items:center;gap:12px;padding:22px 0 6px}
+.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
+.logo svg{width:26px;height:26px}
+.brand h1{font-family:'Fraunces',serif;font-size:24px;font-weight:700;letter-spacing:-.01em}
+.brand h1 em{font-style:normal;color:var(--green)}
+.brand p{font-size:12.5px;color:var(--muted)}
+.disclaimer{margin:14px 0 0;font-size:12px;color:#7a6a2f;background:#fbf3da;border:1px solid #eadfae;border-radius:10px;padding:9px 13px;display:flex;gap:9px;align-items:flex-start}
+.disclaimer svg{flex:none;width:15px;height:15px;margin-top:2px}
+/* ---------- tabs ---------- */
+.tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);padding:12px 0;margin:14px 0 22px;border-bottom:1px solid var(--line)}
+.tabs .row{max-width:920px;margin:0 auto;padding:0 18px;display:flex;gap:8px}
+.tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--card);font:600 13.5px 'Inter';color:var(--muted);cursor:pointer;transition:all .25s}
+.tab svg{width:17px;height:17px}
+.tab.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 16px rgba(22,107,77,.28)}
+.tab:not(.active):hover{border-color:var(--green);color:var(--green)}
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:18px}
+.card h2{font-family:'Fraunces',serif;font-size:21px;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card h2 svg{width:22px;height:22px;color:var(--green)}
+.card .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+section.tabpane{display:none}
+section.tabpane.show{display:block;animation:fadeUp .45s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* ---------- converter ---------- */
+.conv-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:16px}
+.field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field input,.field select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font:600 16px 'Inter';color:var(--ink);background:#fff;transition:border-color .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(22,107,77,.12)}
+.swapbtn{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--line);background:var(--gold-soft);cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .25s;margin-bottom:2px}
+.swapbtn:hover{background:#efe0a8}
+.swapbtn svg{width:20px;height:20px;color:#7a5f12}
+.swapbtn.spin svg{animation:spin .45s ease}
+@keyframes spin{to{transform:rotate(180deg)}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{padding:8px 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font:600 13px 'Inter';color:var(--muted);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--gold);color:#7a5f12;background:#fdf8e6}
+.result{background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:14px;padding:26px 24px;color:#fff;position:relative;overflow:hidden}
+.result::after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.35),transparent 70%)}
+.result .from-line{font-size:13px;opacity:.85;margin-bottom:6px}
+.result .big{font-family:'Fraunces',serif;font-size:clamp(34px,7vw,52px);font-weight:700;letter-spacing:-.01em}
+.result .rate-line{margin-top:10px;font-size:13px;color:var(--gold-soft);display:flex;align-items:center;gap:7px}
+.result .rate-line svg{width:14px;height:14px;flex:none}
+.formula{margin-top:14px;font-size:12.5px;color:var(--muted);background:#f4f1e8;border-radius:10px;padding:10px 14px}
+.formula code{font-family:ui-monospace,monospace;background:#e9e3d2;padding:1px 7px;border-radius:6px;font-size:12px}
+/* ---------- rates table ---------- */
+.rtable{width:100%;border-collapse:collapse;font-size:14px}
+.rtable th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:2px solid var(--line)}
+.rtable td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rtable tr:last-child td{border-bottom:none}
+.rcode{font-weight:700;display:flex;align-items:center;gap:9px}
+.rcode .flagdot{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);display:grid;place-items:center;font:700 11px 'Inter';color:#7a5f12;flex:none}
+.rname{font-size:12.5px;color:var(--muted)}
+.rateinput{width:110px;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;font:600 14px 'Inter';color:var(--ink)}
+.rateinput:focus{outline:none;border-color:var(--green)}
+.runit{font-size:12.5px;color:var(--muted)}
+.btnrow{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font:600 14px 'Inter';cursor:pointer;border:none;transition:transform .15s,box-shadow .2s}
+.btn svg{width:16px;height:16px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 6px 16px rgba(22,107,77,.25)}
+.btn-primary:hover{background:var(--green-dark)}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--danger);color:var(--danger)}
+.btn-gold{background:var(--gold);color:#231a04}
+.btn-gold:hover{background:#b3921f}
+/* ---------- trip planner ---------- */
+.trip-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.expform{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin-bottom:18px;align-items:end}
+.expform .btn{height:48px}
+.explist{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.expitem{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;animation:fadeUp .3s ease both}
+.expitem .cat{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;flex:none}
+.cat-Stay{background:#e3ecf7;color:#2456a0}.cat-Food{background:#fbeed3;color:#9a5b00}.cat-Transport{background:#e2f2e8;color:#166b4d}.cat-Shopping{background:#f3e2f5;color:#7c2f8a}.cat-Other{background:#eceff1;color:#546e7a}
+.expitem .info{flex:1;min-width:0}
+.expitem .info b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expitem .info small{color:var(--muted);font-size:12.5px}
+.expitem .inr{font:700 15px 'Inter';color:var(--green-dark);white-space:nowrap}
+.delbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s}
+.delbtn svg{width:15px;height:15px;color:var(--muted)}
+.delbtn:hover{border-color:var(--danger);background:#fdecea}
+.delbtn:hover svg{color:var(--danger)}
+.empty{border:1.5px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted);font-size:14px}
+.empty svg{width:34px;height:34px;margin-bottom:8px;color:#b9c2bb}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0}
+.totalbox{background:linear-gradient(135deg,#f6f1e2,#efe6c8);border:1px solid #e3d49a;border-radius:12px;padding:16px}
+.totalbox small{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5f12}
+.totalbox .v{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#231a04;margin-top:4px}
+.budgetwrap{margin-top:6px}
+.budgetbar{height:14px;border-radius:99px;background:#eee9d8;overflow:hidden;margin:10px 0 6px}
+.budgetfill{height:100%;border-radius:99px;background:var(--green);width:0%;transition:width .8s cubic-bezier(.2,.8,.2,1),background .4s}
+.budgetmeta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+/* ---------- toast / modal ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font:600 13.5px 'Inter';opacity:0;pointer-events:none;transition:all .3s;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0 10px;border-top:1px solid var(--line);margin-top:10px}
+@media(max-width:640px){
+  .conv-grid{grid-template-columns:1fr;gap:12px}
+  .swapbtn{margin:0 auto;transform:rotate(90deg)}
+  .expform{grid-template-columns:1fr 1fr}
+  .expform .btn{grid-column:1/-1}
+  .card{padding:18px}
+  .tab span.t{display:none}
+  .rtable .rname{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+  section.tabpane.show{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3M9 13c6.667 0 6.667-10 0-10"/></svg>
+    </div>
+    <div class="brand">
+      <h1>Rupee<em>Wise</em></h1>
+      <p>Currency converter &amp; trip budget planner</p>
+    </div>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <span><b>Indicative rates for estimation only</b> — seeded October 2026. Tap any rate in the Rates tab to update it. Always check your bank or card issuer for live rates before paying.</span>
+  </div>
+
+  <nav class="tabs" aria-label="Sections">
+    <div class="row">
+      <button class="tab active" id="tab-converter" data-tab="converter" aria-controls="pane-converter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+        <span class="t">Converter</span>
+      </button>
+      <button class="tab" id="tab-trip" data-tab="trip" aria-controls="pane-trip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>
+        <span class="t">Trip Planner</span>
+      </button>
+      <button class="tab" id="tab-rates" data-tab="rates" aria-controls="pane-rates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>
+        <span class="t">Rates</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============ CONVERTER ============ -->
+  <section class="tabpane show" id="pane-converter" role="tabpanel" aria-labelledby="tab-converter">
+    <div class="card reveal">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>Currency converter</h2>
+      <p class="sub">Type an amount, pick currencies, done. Rates come from your editable table.</p>
+      <div class="conv-grid">
+        <div class="field">
+          <label for="c-amount">Amount</label>
+          <input id="c-amount" type="number" min="0" step="any" value="1000" inputmode="decimal">
+        </div>
+        <button class="swapbtn" id="c-swap" title="Swap currencies" aria-label="Swap currencies">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+        </button>
+        <div class="field" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label for="c-from">From</label>
+            <select id="c-from"></select>
+          </div>
+          <div>
+            <label for="c-to">To</label>
+            <select id="c-to"></select>
+          </div>
+        </div>
+      </div>
+      <div class="chips" id="c-chips" aria-label="Quick amounts"></div>
+      <div class="result" aria-live="polite">
+        <div class="from-line" id="r-fromline">1,000 US Dollar →</div>
+        <div class="big" id="r-big">₹88,500.00</div>
+        <div class="rate-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span id="r-rate">1 USD = ₹88.50</span>
+        </div>
+      </div>
+      <div class="formula" id="r-formula">Formula: <code>1000 × 88.50 ÷ 1</code> — amount × from-rate ÷ to-rate, via INR.</div>
+    </div>
+  </section>
+
+  <!-- ============ TRIP PLANNER ============ -->
+  <section class="tabpane" id="pane-trip" role="tabpanel" aria-labelledby="tab-trip">
+    <div class="card reveal">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>Trip budget planner</h2>
+      <p class="sub">Log spending in any currency — everything converts to INR at your current rates.</p>
+
+      <div class="trip-controls">
+        <div class="field">
+          <label for="t-days">Trip days</label>
+          <input id="t-days" type="number" min="1" step="1" value="7">
+        </div>
+        <div class="field">
+          <label for="t-budget">Total budget (₹, optional)</label>
+          <input id="t-budget" type="number" min="0" step="any" placeholder="e.g. 80000" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="t-disp">Show totals in</label>
+          <select id="t-disp"></select>
+        </div>
+      </div>
+
+      <form class="expform" id="exp-form" autocomplete="off">
+        <div class="field">
+          <label for="e-title">Expense</label>
+          <input id="e-title" type="text" placeholder="e.g. Hotel in Dubai" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="e-amount">Amount</label>
+          <input id="e-amount" type="number" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="e-cur">Currency</label>
+          <select id="e-cur"></select>
+        </div>
+        <div class="field">
+          <label for="e-cat">Category</label>
+          <select id="e-cat">
+            <option>Stay</option><option>Food</option><option>Transport</option><option>Shopping</option><option>Other</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" id="e-add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add
+        </button>
+      </form>
+
+      <div class="explist" id="exp-list"></div>
+
+      <div class="totals">
+        <div class="totalbox"><small>Total spent</small><div class="v" id="tot-inr">₹0</div></div>
+        <div class="totalbox"><small id="tot-fx-label">Total in USD</small><div class="v" id="tot-fx">$0</div></div>
+        <div class="totalbox"><small>Per day avg</small><div class="v" id="tot-day">₹0</div></div>
+      </div>
+
+      <div class="budgetwrap" id="budget-wrap" hidden>
+        <div class="budgetbar"><div class="budgetfill" id="budget-fill"></div></div>
+        <div class="budgetmeta"><span id="budget-text">₹0 of ₹0</span><span id="budget-pct">0%</span></div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn btn-gold" id="t-export">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy summary
+        </button>
+        <button class="btn btn-ghost" id="t-clear">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+          Clear all
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RATES ============ -->
+  <section class="tabpane" id="pane-rates" role="tabpanel" aria-labelledby="tab-rates">
+    <div class="card reveal">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Indicative rates</h2>
+      <p class="sub">Units of INR per 1 unit of foreign currency. Tap any rate to edit — changes save automatically and apply everywhere.</p>
+      <table class="rtable" aria-label="Currency rates versus INR">
+        <thead><tr><th>Currency</th><th>Rate (₹)</th><th>Means</th></tr></thead>
+        <tbody id="rates-body"></tbody>
+      </table>
+      <div class="btnrow">
+        <button class="btn btn-ghost" id="rates-reset">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset to seeded rates
+        </button>
+      </div>
+      <div class="formula" style="margin-top:16px">These are <b>indicative</b> October-2026 estimates for planning. Banks and cards add their own margins — always confirm live rates before a real payment.</div>
+    </div>
+  </section>
+
+  <footer class="site">RupeeWise · rates are indicative, not financial advice · your data never leaves this browser</footer>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+"use strict";
+
+/* ================= data ================= */
+var SEED_RATES = { USD:88.5, EUR:96.2, GBP:112.4, AED:24.1, SGD:65.3, JPY:0.59, AUD:57.1, CAD:63.2, CHF:99.8 };
+var CURR = {
+  INR:{name:"Indian Rupee", sym:"₹"}, USD:{name:"US Dollar", sym:"$"}, EUR:{name:"Euro", sym:"€"},
+  GBP:{name:"British Pound", sym:"£"}, AED:{name:"UAE Dirham", sym:"AED"}, SGD:{name:"Singapore Dollar", sym:"S$"},
+  JPY:{name:"Japanese Yen", sym:"¥"}, AUD:{name:"Australian Dollar", sym:"A$"}, CAD:{name:"Canadian Dollar", sym:"C$"},
+  CHF:{name:"Swiss Franc", sym:"CHF"}
+};
+var ORDER = ["INR","USD","EUR","GBP","AED","SGD","JPY","AUD","CAD","CHF"];
+var LS_RATES="rw_rates_v1", LS_EXP="rw_expenses_v1", LS_SET="rw_settings_v1";
+
+function loadJSON(key, fallback){
+  try{ var v = localStorage.getItem(key); if(v===null) return fallback; return JSON.parse(v); }
+  catch(e){ return fallback; }
+}
+function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+var rates = loadJSON(LS_RATES, null);
+if(!rates || typeof rates!=="object"){ rates = Object.assign({}, SEED_RATES); saveJSON(LS_RATES, rates); }
+ORDER.forEach(function(c){ if(c!=="INR" && !(rates[c]>0)) rates[c]=SEED_RATES[c]; });
+
+var expenses = loadJSON(LS_EXP, []);
+if(!Array.isArray(expenses)) expenses = [];
+var settings = loadJSON(LS_SET, {});
+var tripDays = (settings.days|0) >= 1 ? (settings.days|0) : 7;
+var budget = (typeof settings.budget==="number" && settings.budget>=0) ? settings.budget : 0;
+var dispCur = CURR[settings.disp] ? settings.disp : "USD";
+function saveSettings(){ saveJSON(LS_SET, {days:tripDays, budget:budget, disp:dispCur}); }
+
+/* ================= helpers ================= */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+var inrFmt = new Intl.NumberFormat("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+function fmtRate(r){ return r>=1 ? r.toFixed(2) : String(Number(r.toPrecision(3))); }
+function fmtMoney(amount, code){
+  var sym = CURR[code].sym;
+  var n = inrFmt.format(amount);
+  return (sym.length<=2 ? sym+n : sym+" "+n);
+}
+function toINR(amount, code){ return code==="INR" ? amount : amount*(rates[code]||0); }
+function fromINR(inr, code){ return code==="INR" ? inr : inr/(rates[code]||1); }
+
+var toastTimer=null;
+function toast(msg){
+  var t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove("show");},2400);
+}
+var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* count-up animation for the big result */
+var rafId=null;
+function countUp(el, from, to, code){
+  if(reducedMotion || !isFinite(to)){ el.textContent = fmtMoney(to, code); return; }
+  cancelAnimationFrame(rafId);
+  var start=null, dur=550;
+  function step(ts){
+    if(!start) start=ts;
+    var p=Math.min((ts-start)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent = fmtMoney(from+(to-from)*e, code);
+    if(p<1) rafId=requestAnimationFrame(step);
+  }
+  rafId=requestAnimationFrame(step);
+}
+
+/* ================= tabs ================= */
+var tabNames=["converter","trip","rates"];
+function showTab(name, push){
+  if(tabNames.indexOf(name)<0) name="converter";
+  tabNames.forEach(function(n){
+    $("tab-"+n).classList.toggle("active", n===name);
+    $("pane-"+n).classList.toggle("show", n===name);
+  });
+  if(push!==false){ try{ history.replaceState(null,"","#"+name); }catch(e){} }
+}
+tabNames.forEach(function(n){ $("tab-"+n).addEventListener("click",function(){showTab(n);}); });
+(function(){ var h=(location.hash||"").replace("#",""); showTab(h,false); })();
+window.addEventListener("hashchange",function(){ showTab((location.hash||"").replace("#",""),false); });
+
+/* reveal on scroll */
+var io = new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
+},{threshold:.1});
+document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+/* ================= converter ================= */
+var fromSel=$("c-from"), toSel=$("c-to"), amtInput=$("c-amount");
+ORDER.forEach(function(c){
+  var o1=document.createElement("option"); o1.value=c; o1.textContent=c+" — "+CURR[c].name; fromSel.appendChild(o1);
+  var o2=document.createElement("option"); o2.value=c; o2.textContent=c+" — "+CURR[c].name; toSel.appendChild(o2);
+});
+fromSel.value="USD"; toSel.value="INR";
+
+var lastShown=0;
+function convert(){
+  var amt=parseFloat(amtInput.value);
+  if(!isFinite(amt)||amt<0) amt=0;
+  var f=fromSel.value, t=toSel.value;
+  var inr=toINR(amt,f), out=fromINR(inr,t);
+  $("r-fromline").textContent = inrFmt.format(amt)+" "+CURR[f].name+" →";
+  countUp($("r-big"), lastShown, out, t); lastShown=out;
+  var perOne = f===t ? 1 : (rates[f]||1)/(rates[t]||1);
+  var unitLine = "1 "+f+" = "+fmtMoney(perOne,t);
+  if(f!=="INR"&&t!=="INR") unitLine += "  ·  1 "+f+" = ₹"+fmtRate(rates[f]);
+  $("r-rate").textContent = unitLine;
+  $("r-formula").innerHTML = "Formula: <code>"+esc(inrFmt.format(amt))+" × "+esc(fmtRate(rates[f]||1))+" ÷ "+esc(fmtRate(rates[t]||1))+"</code> — amount × from-rate ÷ to-rate, via INR.";
+}
+["input","change"].forEach(function(ev){
+  amtInput.addEventListener(ev,convert); fromSel.addEventListener(ev,convert); toSel.addEventListener(ev,convert);
+});
+$("c-swap").addEventListener("click",function(){
+  var b=$("c-swap"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
+  var f=fromSel.value; fromSel.value=toSel.value; toSel.value=f; convert();
+});
+[100,500,1000,5000,10000].forEach(function(v){
+  var b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=inrFmt.format(v);
+  b.addEventListener("click",function(){ amtInput.value=v; convert(); });
+  $("c-chips").appendChild(b);
+});
+
+/* ================= rates tab ================= */
+function renderRates(){
+  var tb=$("rates-body"); tb.innerHTML="";
+  ORDER.forEach(function(c){
+    if(c==="INR") return;
+    var tr=document.createElement("tr");
+    var td1=document.createElement("td");
+    td1.innerHTML='<span class="rcode"><span class="flagdot">'+c.slice(0,2)+'</span><span>'+c+'<br><span class="rname">'+esc(CURR[c].name)+'</span></span></span>';
+    var td2=document.createElement("td");
+    var inp=document.createElement("input");
+    inp.className="rateinput"; inp.type="number"; inp.min="0"; inp.step="any"; inp.value=rates[c];
+    inp.setAttribute("aria-label","Rate for "+c+" in INR");
+    inp.addEventListener("change",function(){
+      var v=parseFloat(inp.value);
+      if(!(v>0)){ toast("Rate must be a positive number"); inp.value=rates[c]; return; }
+      rates[c]=v; saveJSON(LS_RATES,rates); convert(); renderTrip(); toast(c+" rate updated to ₹"+fmtRate(v));
+    });
+    td2.appendChild(inp);
+    var td3=document.createElement("td"); td3.className="runit"; td3.textContent="1 "+c+" = ₹"+fmtRate(rates[c]);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tb.appendChild(tr);
+  });
+}
+$("rates-reset").addEventListener("click",function(){
+  rates=Object.assign({},SEED_RATES); saveJSON(LS_RATES,rates);
+  renderRates(); convert(); renderTrip(); toast("Rates reset to seeded values");
+});
+
+/* ================= trip planner ================= */
+var eCur=$("e-cur"), tDisp=$("t-disp");
+ORDER.forEach(function(c){
+  var o=document.createElement("option"); o.value=c; o.textContent=c+" — "+CURR[c].name; eCur.appendChild(o);
+  var o2=document.createElement("option"); o2.value=c; o2.textContent=c; tDisp.appendChild(o2);
+});
+eCur.value="USD"; tDisp.value=dispCur;
+$("t-days").value=tripDays;
+if(budget>0) $("t-budget").value=budget;
+
+function saveExpenses(){ saveJSON(LS_EXP,expenses); }
+
+$("exp-form").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var title=$("e-title").value.trim(), amt=parseFloat($("e-amount").value);
+  if(!title){ toast("Give the expense a title"); $("e-title").focus(); return; }
+  if(!(amt>0)){ toast("Enter an amount greater than zero"); $("e-amount").focus(); return; }
+  expenses.push({id:Date.now()+""+Math.floor(Math.random()*999), title:title, amount:amt,
+                 cur:eCur.value, cat:$("e-cat").value, at:Date.now()});
+  saveExpenses(); renderTrip();
+  $("e-title").value=""; $("e-amount").value=""; $("e-title").focus();
+  toast("Expense added");
+});
+
+function renderTrip(){
+  var list=$("exp-list"); list.innerHTML="";
+  if(!expenses.length){
+    list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg><br>No expenses yet — add your first one above.</div>';
+  }
+  var totalINR=0;
+  expenses.forEach(function(x){
+    var inr=toINR(x.amount,x.cur); totalINR+=inr;
+    var div=document.createElement("div"); div.className="expitem";
+    div.innerHTML='<span class="cat cat-'+esc(x.cat)+'">'+esc(x.cat)+'</span>'+
+      '<div class="info"><b>'+esc(x.title)+'</b><small>'+esc(fmtMoney(x.amount,x.cur))+" "+esc(x.cur)+'</small></div>'+
+      '<span class="inr">₹'+inrFmt.format(inr)+'</span>';
+    var del=document.createElement("button"); del.className="delbtn"; del.title="Delete expense"; del.setAttribute("aria-label","Delete "+x.title);
+    del.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>';
+    del.addEventListener("click",(function(id){return function(){
+      expenses=expenses.filter(function(e){return e.id!==id;}); saveExpenses(); renderTrip(); toast("Expense deleted");
+    };})(x.id));
+    div.appendChild(del); list.appendChild(div);
+  });
+
+  $("tot-inr").textContent="₹"+inrFmt.format(totalINR);
+  $("tot-fx-label").textContent="Total in "+dispCur;
+  $("tot-fx").textContent=fmtMoney(fromINR(totalINR,dispCur),dispCur);
+  var days=tripDays>=1?tripDays:1;
+  $("tot-day").textContent="₹"+inrFmt.format(totalINR/days);
+
+  var bw=$("budget-wrap");
+  if(budget>0){
+    bw.hidden=false;
+    var pct=Math.min(totalINR/budget*100,100);
+    var fill=$("budget-fill"); fill.style.width=pct+"%";
+    fill.style.background = pct<70 ? "var(--green)" : (pct<100 ? "var(--gold)" : "var(--danger)");
+    $("budget-text").textContent="₹"+inrFmt.format(totalINR)+" of ₹"+inrFmt.format(budget);
+    $("budget-pct").textContent=Math.round(totalINR/budget*100)+"% used";
+  } else { bw.hidden=true; }
+}
+
+$("t-days").addEventListener("change",function(){
+  var v=parseInt($("t-days").value,10);
+  tripDays=(v>=1)?v:1; $("t-days").value=tripDays; saveSettings(); renderTrip();
+});
+$("t-budget").addEventListener("input",function(){
+  var v=parseFloat($("t-budget").value);
+  budget=(isFinite(v)&&v>0)?v:0; saveSettings(); renderTrip();
+});
+tDisp.addEventListener("change",function(){ dispCur=tDisp.value; saveSettings(); renderTrip(); });
+
+$("t-clear").addEventListener("click",function(){
+  if(!expenses.length){ toast("Nothing to clear"); return; }
+  if(confirm("Delete all "+expenses.length+" expenses? This cannot be undone.")){
+    expenses=[]; saveExpenses(); renderTrip(); toast("All expenses cleared");
+  }
+});
+
+$("t-export").addEventListener("click",function(){
+  if(!expenses.length){ toast("Add an expense first"); return; }
+  var totalINR=expenses.reduce(function(s,x){return s+toINR(x.amount,x.cur);},0);
+  var lines=["RupeeWise trip summary ("+new Date().toLocaleDateString("en-IN")+"):",""];
+  var byCat={};
+  expenses.forEach(function(x){
+    var inr=toINR(x.amount,x.cur);
+    lines.push("• "+x.title+" — "+fmtMoney(x.amount,x.cur)+" "+x.cur+" (≈ ₹"+inrFmt.format(inr)+") ["+x.cat+"]");
+    byCat[x.cat]=(byCat[x.cat]||0)+inr;
+  });
+  lines.push("","By category:");
+  Object.keys(byCat).forEach(function(c){ lines.push("  "+c+": ₹"+inrFmt.format(byCat[c])); });
+  lines.push("","Total: ₹"+inrFmt.format(totalINR)+" (≈ "+fmtMoney(fromINR(totalINR,dispCur),dispCur)+" "+dispCur+")",
+             "Per day ("+tripDays+" days): ₹"+inrFmt.format(totalINR/(tripDays>=1?tripDays:1)));
+  if(budget>0) lines.push("Budget: ₹"+inrFmt.format(budget)+" — "+Math.round(totalINR/budget*100)+"% used");
+  lines.push("","Rates are indicative (Oct 2026 estimates).");
+  var text=lines.join("\n");
+  function done(){ toast("Summary copied to clipboard"); }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done,function(){ fallbackCopy(text); done(); });
+  } else { fallbackCopy(text); done(); }
+});
+function fallbackCopy(text){
+  var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ================= init ================= */
+renderRates(); renderTrip(); convert();
+})();
+</script>
+</body>
+</html>
