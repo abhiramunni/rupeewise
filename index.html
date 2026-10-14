@@ -4,153 +4,224 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RupeeWise — Currency Converter &amp; Trip Budget Planner</title>
-<meta name="description" content="Convert currencies with editable indicative rates and plan your trip budget — all in one page, no signup.">
+<meta name="description" content="Convert currencies with live auto-updating rates and plan your trip budget — all in one page, no signup.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ============ Realtime-Colors palette -> CSS variables ============ */
+/* ============ private-banking editorial theme ============ */
 :root{
-  --bg:#050315; --text:#fbfbfe; --primary:#2f27ce; --secondary:#dedcff; --accent:#433bff;
-  --ink-soft:#b9bce8; --muted:#8f93c9;
-  --glass:rgba(251,251,254,.055); --glass-strong:rgba(251,251,254,.09);
-  --line:rgba(251,251,254,.12); --line-soft:rgba(251,251,254,.07);
-  --danger:#e5484d; --warn:#e8a13d; --ok:#4cc38a;
+  --bg:#FAF7F0; --bg2:#F5F0E6; --card:#FFFDF8;
+  --text:#17130C; --ink-soft:#5C5346; --muted:#8A7E6B;
+  --bronze:#B08D57; --bronze-d:#8a6a3e; --bronze-lt:#d9b98a;
+  --espresso:#3E2F1E; --espresso-d:#241A0F;
+  --line:#E7DFD0; --line-soft:#EFE8D8;
+  --glass:rgba(255,253,248,.78); --glass-strong:rgba(255,253,248,.94);
+  --danger:#B91C1C; --warn:#B45309; --ok:#2F7D5B;
   --radius:18px;
-  --shadow:0 18px 50px rgba(2,2,12,.55);
+  --shadow:0 18px 45px rgba(62,47,30,.10);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-#mesh{position:fixed;inset:0;z-index:-1;opacity:.55;pointer-events:none}
+#mesh{position:fixed;inset:0;z-index:-1;opacity:.8;pointer-events:none}
 .wrap{max-width:960px;margin:0 auto;padding:0 18px 90px;position:relative}
 /* ============ hero ============ */
 .hero{padding:34px 0 0;position:relative}
 .hero-inner{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
 .brand-block{display:flex;align-items:center;gap:16px}
-/* liquid-logo: morphing blob mark with ₹ */
-.logo-blob{width:64px;height:64px;flex:none;filter:drop-shadow(0 8px 22px rgba(67,59,255,.45))}
-.logo-blob text{font:800 30px 'Inter',sans-serif;fill:#fbfbfe}
-.brand h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.brand h1 .wise{background:linear-gradient(120deg,var(--accent),#8b7bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* liquid-logo: morphing bronze blob with ₹ */
+.logo-blob{width:64px;height:64px;flex:none;filter:drop-shadow(0 8px 20px rgba(176,141,87,.4))}
+.logo-blob text{font:800 30px 'Inter',sans-serif;fill:#FFFDF8}
+.brand h1{font-family:var(--serif);font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.brand h1 .wise{background:linear-gradient(120deg,var(--bronze-d),var(--bronze));-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand p{font-size:13.5px;color:var(--muted);margin-top:3px}
 .coin-wrap{width:220px;height:220px;position:relative}
 .coin-wrap canvas{width:100%;height:100%;display:block}
-.coin-glow{position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle,rgba(67,59,255,.35),transparent 70%);filter:blur(10px);z-index:-1}
-.disclaimer{margin:20px 0 0;font-size:12.5px;color:var(--ink-soft);background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px 15px;display:flex;gap:10px;align-items:flex-start;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.disclaimer svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--accent)}
+.coin-glow{position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle,rgba(176,141,87,.35),transparent 70%);filter:blur(10px);z-index:-1}
+.disclaimer{margin:20px 0 0;font-size:12.5px;color:var(--ink-soft);background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px 15px;display:flex;gap:10px;align-items:flex-start;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.disclaimer svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--bronze-d)}
 .disclaimer b{color:var(--text)}
-/* Haikei-style wave divider */
+.tourbtn{margin-top:12px;background:none;border:none;color:var(--bronze-d);font:600 13px 'Inter',sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0}
+.tourbtn:hover{color:var(--espresso)}
+/* Haikei-style wave divider, warm tones */
 .wavediv{display:block;width:100%;height:70px;margin:26px 0 4px}
-/* ============ tabs (kokonutui sliding indicator) ============ */
+/* ============ how it works strip ============ */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:2px 0 26px}
+.howcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px rgba(62,47,30,.06)}
+.howcard .n{font:700 11px 'Inter',sans-serif;color:var(--bronze-d);letter-spacing:.12em}
+.howcard h3{font:600 17px var(--serif);margin:6px 0 4px}
+.howcard p{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+/* ============ tabs (sliding indicator) ============ */
 .tabs{position:sticky;top:0;z-index:20;margin:6px 0 24px}
-.tabs-inner{position:relative;display:flex;gap:4px;background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:5px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.tab-indicator{position:absolute;top:5px;bottom:5px;left:0;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 6px 18px rgba(67,59,255,.4)}
+.tabs-inner{position:relative;display:flex;gap:4px;background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:5px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(62,47,30,.08)}
+.tab-indicator{position:absolute;top:5px;bottom:5px;left:0;border-radius:11px;background:linear-gradient(135deg,var(--espresso),var(--bronze-d));box-shadow:0 6px 16px rgba(62,47,30,.3)}
 .tab{flex:1;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border:none;background:transparent;font:600 13.5px 'Inter',sans-serif;color:var(--muted);cursor:pointer;transition:color .25s;border-radius:11px}
 .tab svg{width:17px;height:17px}
-.tab.active{color:#fff}
-.tab:not(.active):hover{color:var(--secondary)}
-/* ============ glass cards (liquid-glass) ============ */
-.card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-bottom:20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);position:relative;overflow:hidden}
-.card::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,251,254,.35),transparent);pointer-events:none}
-.card h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;display:flex;align-items:center;gap:10px}
-.card h2 svg{width:22px;height:22px;color:var(--accent)}
-.card h2 .acctick{width:26px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--accent))}
-.card .sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.tab.active{color:#FFFDF8}
+.tab:not(.active):hover{color:var(--espresso)}
+/* ============ cards ============ */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-bottom:20px;position:relative}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;border-radius:18px 18px 0 0;background:linear-gradient(90deg,transparent,rgba(176,141,87,.5),transparent);pointer-events:none}
+.card h2{font-family:var(--serif);font-size:23px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card h2 svg{width:22px;height:22px;color:var(--bronze-d)}
+.card h2 .acctick{width:26px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--bronze-d),var(--bronze-lt))}
+.card .sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:20px;line-height:1.6}
 section.tabpane{display:none}
 section.tabpane.show{display:block}
 /* ============ converter ============ */
 .conv-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:16px}
 .field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
-.field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font:600 16px 'Inter',sans-serif;color:var(--text);background:rgba(251,251,254,.06);transition:border-color .2s,box-shadow .2s,background .2s;appearance:none}
-.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238f93c9' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-.field select option{background:#0d0b26;color:#fbfbfe}
-.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,59,255,.22);background:rgba(251,251,254,.09)}
-.swapbtn{width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:var(--glass-strong);cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .25s,border-color .25s;margin-bottom:2px;backdrop-filter:blur(8px)}
-.swapbtn:hover{background:rgba(67,59,255,.25);border-color:var(--accent)}
-.swapbtn svg{width:20px;height:20px;color:var(--secondary)}
+.field input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font:600 16px 'Inter',sans-serif;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s}
+.field input:focus{outline:none;border-color:var(--bronze);box-shadow:0 0 0 3px rgba(176,141,87,.18)}
+.field select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font:600 15px 'Inter',sans-serif;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238a6a3e' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;-webkit-appearance:none;padding-right:36px;cursor:pointer}
+.field select:focus{outline:none;border-color:var(--bronze);box-shadow:0 0 0 3px rgba(176,141,87,.18)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.hint b{color:var(--ink-soft)}
+/* ============ custom currency dropdown (flags + search + keyboard) ============ */
+.curdd{position:relative}
+.dd-trigger{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font:600 15px 'Inter',sans-serif;color:var(--text);cursor:pointer;transition:border-color .2s,box-shadow .2s;text-align:left}
+.dd-trigger:hover{border-color:var(--bronze)}
+.curdd.open .dd-trigger{border-color:var(--bronze);box-shadow:0 0 0 3px rgba(176,141,87,.18)}
+.dd-trigger .code{font-weight:700}
+.dd-trigger .sym{color:var(--muted);font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dd-trigger .chev{margin-left:auto;flex:none;color:var(--muted);display:grid;place-items:center}
+.dd-trigger .chev svg{width:14px;height:14px;display:block}
+.dd-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;min-width:260px;background:#FFFDF8;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px rgba(62,47,30,.2);z-index:60;overflow:hidden;display:none}
+.curdd.open .dd-panel{display:block;animation:ddin .18s ease}
+@keyframes ddin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.dd-search{width:100%;border:none;border-bottom:1px solid var(--line-soft);padding:12px 14px;font:500 14px 'Inter',sans-serif;color:var(--text);background:#fff}
+.dd-search:focus{outline:none}
+.dd-list{max-height:260px;overflow-y:auto;padding:6px}
+.dd-opt{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer}
+.dd-opt:hover,.dd-opt.hl{background:var(--bg2)}
+.dd-opt .ocode{font-size:14px}
+.dd-opt .ocode .nm{color:var(--muted);font-size:12.5px;font-weight:400}
+.dd-opt .osym{margin-left:auto;color:var(--bronze-d);font-weight:700;font-size:13px;flex:none}
+/* ============ currency flags ============ */
+.flagwrap{display:inline-flex;flex:none}
+.flag{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 1px var(--line);display:block}
+.dd-trigger .flag{width:28px;height:28px}
+.flag-sm .flag{width:28px;height:28px}
+.curdot{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bronze-d),var(--bronze));display:grid;place-items:center;font:700 13px 'Inter',sans-serif;color:#FFFDF8;flex:none}
+/* ============ swap + chips ============ */
+.swapbtn{width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .25s,border-color .25s;margin-bottom:2px;box-shadow:0 6px 16px rgba(62,47,30,.08)}
+.swapbtn:hover{background:rgba(176,141,87,.14);border-color:var(--bronze)}
+.swapbtn svg{width:20px;height:20px;color:var(--bronze-d)}
 .swapbtn.spin svg{animation:spin .45s ease}
 @keyframes spin{to{transform:rotate(180deg)}}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.chip{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(251,251,254,.05);font:600 13px 'Inter',sans-serif;color:var(--ink-soft);cursor:pointer;transition:all .2s}
-.chip:hover{border-color:var(--accent);color:#fff;background:rgba(67,59,255,.2);transform:translateY(-1px)}
-/* result panel with shimmer sweep */
-.result{background:linear-gradient(135deg,var(--primary),var(--accent) 130%);border-radius:14px;padding:26px 24px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 14px 40px rgba(47,39,206,.35)}
-.result::before{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
-.result::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none}
+.chip{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:600 13px 'Inter',sans-serif;color:var(--ink-soft);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--bronze);color:var(--espresso);background:rgba(176,141,87,.1);transform:translateY(-1px)}
+/* ============ result panel ============ */
+.result{background:linear-gradient(140deg,#3E2F1E,#241A0F 130%);border-radius:14px;padding:26px 24px;color:#FFFDF8;position:relative;overflow:hidden;border:1px solid rgba(176,141,87,.35);box-shadow:0 14px 40px rgba(36,26,15,.35)}
+.result::before{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(217,185,138,.22),transparent 70%)}
+.result::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(105deg,transparent,rgba(255,253,248,.14),transparent);transform:skewX(-18deg);pointer-events:none}
 .result.sweep::after{animation:sweep .8s ease}
 @keyframes sweep{to{left:130%}}
-.result .from-line{font-size:13px;opacity:.85;margin-bottom:6px}
-.result .big{font-size:clamp(34px,7vw,52px);font-weight:800;letter-spacing:-.03em}
-.result .rate-line{margin-top:10px;font-size:13px;color:#e4e1ff;display:flex;align-items:center;gap:7px}
+.result .from-line{font-size:13px;color:#d8c9ae;margin-bottom:6px}
+.result .big{font-family:var(--serif);font-size:clamp(34px,7vw,52px);font-weight:700;letter-spacing:-.02em}
+.result .rate-line{margin-top:10px;font-size:13px;color:#cbb98f;display:flex;align-items:center;gap:7px}
 .result .rate-line svg{width:14px;height:14px;flex:none}
-.formula{margin-top:14px;font-size:12.5px;color:var(--muted);background:rgba(251,251,254,.05);border:1px solid var(--line-soft);border-radius:10px;padding:10px 14px}
-.formula code{font-family:ui-monospace,monospace;background:rgba(67,59,255,.18);border:1px solid rgba(67,59,255,.3);padding:1px 7px;border-radius:6px;font-size:12px;color:#d7d4ff}
+.means{margin-top:14px;font-size:13.5px;color:#f0e4cb;background:rgba(176,141,87,.16);border:1px solid rgba(176,141,87,.4);border-radius:10px;padding:10px 14px;line-height:1.55}
+.formula{margin-top:14px;font-size:12.5px;color:var(--ink-soft);background:var(--bg2);border:1px solid var(--line-soft);border-radius:10px;padding:10px 14px}
+.formula code{font-family:ui-monospace,monospace;background:rgba(176,141,87,.14);border:1px solid rgba(176,141,87,.3);padding:1px 7px;border-radius:6px;font-size:12px;color:var(--bronze-d)}
 /* ============ rates table ============ */
 .rtable{width:100%;border-collapse:collapse;font-size:14px}
 .rtable th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--line)}
 .rtable td{padding:10px 8px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
 .rtable tr:last-child td{border-bottom:none}
 .rtable tbody tr{transition:background .2s}
-.rtable tbody tr:hover{background:rgba(251,251,254,.03)}
+.rtable tbody tr:hover{background:#faf5ea}
 .rcode{font-weight:700;display:flex;align-items:center;gap:10px}
-.rcode .curdot{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font:700 11px 'Inter',sans-serif;color:#fff;flex:none;box-shadow:0 4px 12px rgba(67,59,255,.35)}
 .rname{font-size:12.5px;color:var(--muted);font-weight:400}
-.rateinput{width:115px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font:600 14px 'Inter',sans-serif;color:var(--text);background:rgba(251,251,254,.06)}
-.rateinput:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(67,59,255,.2)}
+.rateinput{width:115px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font:600 14px 'Inter',sans-serif;color:var(--text);background:#fff}
+.rateinput:focus{outline:none;border-color:var(--bronze);box-shadow:0 0 0 3px rgba(176,141,87,.18)}
 .runit{font-size:12.5px;color:var(--muted)}
+.btn-sm{padding:8px 14px;font-size:12.5px}
+.rates-live-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 12px}
+.live-badge{display:inline-flex;align-items:center;gap:7px;font:700 11px 'Inter',sans-serif;letter-spacing:.09em;padding:5px 12px;border-radius:999px;color:#241A0F;background:linear-gradient(135deg,var(--bronze-lt),var(--bronze));border:1px solid rgba(176,141,87,.6);cursor:help}
+.live-badge.off{background:#efe9db;color:var(--muted);border-color:var(--line)}
+.livedot{width:8px;height:8px;border-radius:50%;background:#241A0F;animation:pulse 1.6s ease-in-out infinite}
+.live-badge.off .livedot{background:var(--muted);animation:none}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.45);opacity:.5}}
+.rates-updated{font-size:12.5px;color:var(--muted)}
+.rates-note{font-size:12.5px;color:var(--ink-soft);background:#FBF3E4;border:1px solid #EADFC3;border-radius:10px;padding:8px 12px;margin:0 0 12px}
+.customtag{margin-left:8px;font:700 10px 'Inter',sans-serif;letter-spacing:.07em;color:var(--bronze-d);background:rgba(176,141,87,.14);border:1px solid rgba(176,141,87,.5);border-radius:999px;padding:3px 9px;cursor:pointer;vertical-align:middle}
+.shimmerbar{height:10px;border-radius:99px;background:linear-gradient(90deg,#EDE5D3,#F7F1E3,#EDE5D3);background-size:200% 100%;animation:shim 1.2s linear infinite;margin:0 0 12px}
+@keyframes shim{to{background-position:-200% 0}}
+@media (prefers-reduced-motion: reduce){.livedot,.shimmerbar{animation:none}}
 .btnrow{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-/* buttons: motion-primitives press-scale + magnetic */
+/* ============ buttons ============ */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font:600 14px 'Inter',sans-serif;cursor:pointer;border:none;transition:transform .15s,box-shadow .2s,background .2s,border-color .2s;will-change:transform}
 .btn svg{width:16px;height:16px}
 .btn:active{transform:scale(.96)}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 8px 22px rgba(67,59,255,.4)}
-.btn-primary:hover{box-shadow:0 10px 28px rgba(67,59,255,.55);filter:brightness(1.08)}
-.btn-ghost{background:rgba(251,251,254,.05);border:1px solid var(--line);color:var(--ink-soft)}
-.btn-ghost:hover{border-color:var(--danger);color:#ff8a8e;background:rgba(229,72,77,.08)}
-.btn-accent{background:rgba(67,59,255,.16);border:1px solid rgba(67,59,255,.45);color:#d7d4ff}
-.btn-accent:hover{background:rgba(67,59,255,.28);border-color:var(--accent)}
+.btn-primary{background:linear-gradient(135deg,var(--espresso),#2a1f12);color:#FFFDF8;box-shadow:0 8px 22px rgba(62,47,30,.3)}
+.btn-primary:hover{box-shadow:0 10px 28px rgba(62,47,30,.4);filter:brightness(1.12)}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}
+.btn-ghost:hover{border-color:var(--danger);color:var(--danger);background:rgba(185,28,28,.05)}
+.btn-accent{background:rgba(176,141,87,.14);border:1px solid rgba(176,141,87,.5);color:var(--bronze-d)}
+.btn-accent:hover{background:rgba(176,141,87,.24);border-color:var(--bronze)}
 /* ============ trip planner ============ */
 .trip-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .expform{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin-bottom:18px;align-items:end}
 .expform .btn{height:50px}
-/* donut chart (bklit-ui spirit) */
-.spendwrap{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:rgba(251,251,254,.04);border:1px solid var(--line-soft);border-radius:14px;padding:18px;margin-bottom:18px}
+.spendwrap{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:var(--bg2);border:1px solid var(--line-soft);border-radius:14px;padding:18px;margin-bottom:18px}
 .spendwrap[hidden]{display:none}
 .donut{width:150px;height:150px;flex:none;transform:rotate(-90deg)}
 .donut .seg{fill:none;stroke-width:22;transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1),stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
-.donut .track{fill:none;stroke:rgba(251,251,254,.08);stroke-width:22}
+.donut .track{fill:none;stroke:#E4D9C2;stroke-width:22}
 .donut-center{transform:rotate(90deg);text-anchor:middle}
-.donut-center .amt{font:800 19px 'Inter',sans-serif;fill:#fbfbfe;letter-spacing:-.02em}
-.donut-center .lbl{font:600 10px 'Inter',sans-serif;fill:#8f93c9;letter-spacing:.08em}
+.donut-center .amt{font:700 19px var(--serif);fill:var(--text);letter-spacing:-.02em}
+.donut-center .lbl{font:600 10px 'Inter',sans-serif;fill:var(--muted);letter-spacing:.08em}
 .legend{display:flex;flex-direction:column;gap:8px;font-size:13px}
 .legend .li{display:flex;align-items:center;gap:9px;color:var(--ink-soft)}
 .legend .dot{width:11px;height:11px;border-radius:4px;flex:none}
 .legend .v{margin-left:auto;font-weight:700;color:var(--text)}
 .explist{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
-.expitem{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line-soft);border-radius:12px;background:rgba(251,251,254,.045);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.expitem{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(62,47,30,.05)}
 .expitem .cat{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;flex:none}
-.cat-Stay{background:rgba(142,162,255,.14);color:#a9b8ff}.cat-Food{background:rgba(232,176,125,.14);color:#f0bd8d}.cat-Transport{background:rgba(111,211,182,.14);color:#8fdcbc}.cat-Shopping{background:rgba(199,155,238,.14);color:#d3aef2}.cat-Other{background:rgba(154,163,178,.16);color:#b6bdc9}
+.cat-Stay{background:rgba(176,141,87,.16);color:#8a6a3e}.cat-Food{background:rgba(180,83,9,.12);color:#B45309}.cat-Transport{background:rgba(47,125,91,.12);color:#2F7D5B}.cat-Shopping{background:rgba(122,90,59,.14);color:#7A5A3B}.cat-Other{background:rgba(138,126,107,.16);color:#6E6350}
 .expitem .info{flex:1;min-width:0}
 .expitem .info b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .expitem .info small{color:var(--muted);font-size:12.5px}
-.expitem .inr{font:700 15px 'Inter',sans-serif;color:#d7d4ff;white-space:nowrap}
-.delbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:rgba(251,251,254,.05);cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s}
+.expitem .inr{font:700 15px 'Inter',sans-serif;color:var(--bronze-d);white-space:nowrap}
+.delbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s}
 .delbtn svg{width:15px;height:15px;color:var(--muted)}
-.delbtn:hover{border-color:var(--danger);background:rgba(229,72,77,.12)}
-.delbtn:hover svg{color:#ff8a8e}
-.empty{border:1.5px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted);font-size:14px}
-.empty svg{width:34px;height:34px;margin-bottom:8px;color:#3d4180}
+.delbtn:hover{border-color:var(--danger);background:rgba(185,28,28,.06)}
+.delbtn:hover svg{color:var(--danger)}
+.empty{border:1.5px dashed var(--line);border-radius:12px;padding:32px 24px;text-align:center;color:var(--ink-soft);font-size:14px;background:#fff}
+.empty svg{width:40px;height:40px;margin-bottom:10px;color:var(--bronze)}
+.empty b{display:block;font:600 16px var(--serif);color:var(--text);margin-bottom:6px}
+.empty p{max-width:360px;margin:0 auto;line-height:1.65}
 .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0}
-.totalbox{background:rgba(67,59,255,.1);border:1px solid rgba(67,59,255,.28);border-radius:12px;padding:16px}
-.totalbox small{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a9b8ff}
-.totalbox .v{font-size:24px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-top:4px}
+.totalbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 4px 14px rgba(62,47,30,.05)}
+.totalbox small{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--bronze-d)}
+.totalbox .v{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-top:4px}
 .budgetwrap{margin-top:6px}
-.budgetbar{height:14px;border-radius:99px;background:rgba(251,251,254,.09);overflow:hidden;margin:10px 0 6px}
-.budgetfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width .8s cubic-bezier(.2,.8,.2,1),background .4s}
+.budgetbar{height:14px;border-radius:99px;background:#EDE5D3;overflow:hidden;margin:10px 0 6px;cursor:help}
+.budgetfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--bronze-d),var(--bronze-lt));width:0%;transition:width .8s cubic-bezier(.2,.8,.2,1),background .4s}
 .budgetmeta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+/* ============ tooltips ============ */
+[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#241A0F;color:#FFFDF8;font:500 12px/1.5 'Inter',sans-serif;padding:8px 12px;border-radius:8px;width:max-content;max-width:230px;z-index:120;text-align:left;box-shadow:0 10px 26px rgba(36,26,15,.3)}
+/* ============ onboarding ============ */
+.onb{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(23,19,12,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+.onb[hidden]{display:none}
+.onb-card{background:#FFFDF8;border:1px solid var(--line);border-radius:22px;max-width:430px;width:100%;padding:34px 32px;box-shadow:0 30px 80px rgba(36,26,15,.35);text-align:center}
+.onb-ico{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--bronze-d),var(--bronze-lt));display:grid;place-items:center;margin:0 auto 16px;color:#FFFDF8}
+.onb-ico svg{width:26px;height:26px}
+.onb-card h3{font:700 22px var(--serif);margin-bottom:8px}
+.onb-card p{font-size:14px;color:var(--ink-soft);line-height:1.65;margin-bottom:20px}
+.onb-dots{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.onb-dots span{width:8px;height:8px;border-radius:99px;background:#E4D9C2;transition:all .25s}
+.onb-dots span.on{width:26px;background:var(--bronze-d)}
+.onb-btns{display:flex;gap:10px;justify-content:center}
+.onb-skip{background:none;border:none;color:var(--muted);font:600 13px 'Inter',sans-serif;cursor:pointer;margin-top:14px;text-decoration:underline;text-underline-offset:3px}
+.onb-skip:hover{color:var(--espresso)}
 /* ============ toast ============ */
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#14122e;border:1px solid var(--line);color:#fff;padding:12px 22px;border-radius:12px;font:600 13.5px 'Inter',sans-serif;opacity:0;pointer-events:none;transition:all .3s;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#241A0F;border:1px solid rgba(176,141,87,.4);color:#FFFDF8;padding:12px 22px;border-radius:12px;font:600 13.5px 'Inter',sans-serif;opacity:0;pointer-events:none;transition:all .3s;z-index:300;box-shadow:0 10px 30px rgba(36,26,15,.4);max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .reveal{opacity:0}
 footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0 10px;border-top:1px solid var(--line-soft);margin-top:10px}
@@ -166,13 +237,18 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   .tab span.t{display:none}
   .rtable .rname{display:none}
   .spendwrap{grid-template-columns:1fr;justify-items:center}
+  .how{grid-template-columns:1fr}
+  .dd-trigger .sym{display:none}
+  .brand h1{font-size:28px}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
   .reveal{opacity:1}
   .tab-indicator{transition:none}
+  .curdd.open .dd-panel{animation:none}
 }
+
 </style>
 </head>
 <body>
@@ -187,7 +263,7 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
           <svg viewBox="0 0 100 100">
             <defs>
               <linearGradient id="blobg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#2f27ce"/><stop offset="1" stop-color="#433bff"/>
+                <stop offset="0" stop-color="#B08D57"/><stop offset="1" stop-color="#8a6a3e"/>
               </linearGradient>
             </defs>
             <path id="blobpath" fill="url(#blobg)"/>
@@ -207,15 +283,22 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
     </div>
     <div class="disclaimer reveal" role="note">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-      <span><b>Indicative rates for estimation only</b> — seeded October 2026. Tap any rate in the Rates tab to update it. Always check your bank or card issuer for live rates before paying.</span>
+      <span><b>Live rates, auto-updated</b> — refreshed from a public feed on every visit. Tap any rate in the Rates tab to set a custom value. Always check your bank or card issuer for live rates before paying.</span>
     </div>
+    <button class="tourbtn" id="tour-btn" type="button">Take the 30-second tour — see what each part does</button>
   </header>
 
   <!-- Haikei-style wave divider -->
   <svg class="wavediv" viewBox="0 0 960 70" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,40 C160,70 320,10 480,35 C640,60 800,15 960,40 L960,70 L0,70 Z" fill="rgba(67,59,255,.10)"/>
-    <path d="M0,50 C180,75 360,25 540,45 C720,65 840,30 960,50 L960,70 L0,70 Z" fill="rgba(47,39,206,.16)"/>
+    <path d="M0,40 C160,70 320,10 480,35 C640,60 800,15 960,40 L960,70 L0,70 Z" fill="rgba(176,141,87,.14)"/>
+    <path d="M0,50 C180,75 360,25 540,45 C720,65 840,30 960,50 L960,70 L0,70 Z" fill="rgba(62,47,30,.10)"/>
   </svg>
+
+  <div class="how" aria-label="How RupeeWise works">
+    <div class="howcard"><div class="n">01</div><h3>Convert</h3><p>Type an amount, pick two currencies — see the live conversion instantly, with the exact rate shown.</p></div>
+    <div class="howcard"><div class="n">02</div><h3>Plan</h3><p>Log trip expenses in the currency you paid. Everything converts to rupees automatically.</p></div>
+    <div class="howcard"><div class="n">03</div><h3>Track</h3><p>Set a budget and watch the bar fill as you spend. Rates refresh live on every visit.</p></div>
+  </div>
 
   <!-- kokonutui / motion-primitives sliding tab indicator -->
   <nav class="tabs" aria-label="Sections">
@@ -240,23 +323,26 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <section class="tabpane show" id="pane-converter" role="tabpanel" aria-labelledby="tab-converter">
     <div class="card reveal">
       <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>Currency converter <span class="acctick"></span></h2>
-      <p class="sub">Type an amount, pick currencies, done. Rates come from your editable table.</p>
+      <p class="sub">Type an amount, choose the two currencies with the flag pickers, and see the live conversion instantly — including what it means in plain words.</p>
       <div class="conv-grid">
         <div class="field">
           <label for="c-amount">Amount</label>
           <input id="c-amount" type="number" min="0" step="any" value="1000" inputmode="decimal">
+          <div class="hint">The amount in the currency you&apos;re converting <b>from</b>.</div>
         </div>
         <button class="swapbtn" id="c-swap" title="Swap currencies" aria-label="Swap currencies">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
         </button>
         <div class="field" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div>
-            <label for="c-from">From</label>
-            <select id="c-from"></select>
+            <label id="lbl-from">From</label>
+            <div id="dd-from"></div>
+            <div class="hint">The currency you <b>have</b>.</div>
           </div>
           <div>
-            <label for="c-to">To</label>
-            <select id="c-to"></select>
+            <label id="lbl-to">To</label>
+            <div id="dd-to"></div>
+            <div class="hint">The currency you <b>want</b>.</div>
           </div>
         </div>
       </div>
@@ -268,6 +354,7 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
           <span id="r-rate">1 USD = ₹88.50</span>
         </div>
+        <div class="means" id="r-means"></div>
       </div>
       <div class="formula" id="r-formula">Formula: <code>1000 × 88.50 ÷ 1</code> — amount × from-rate ÷ to-rate, via INR.</div>
     </div>
@@ -277,20 +364,23 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <section class="tabpane" id="pane-trip" role="tabpanel" aria-labelledby="tab-trip">
     <div class="card reveal">
       <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>Trip budget planner <span class="acctick"></span></h2>
-      <p class="sub">Log spending in any currency — everything converts to INR at your current rates.</p>
+      <p class="sub">Log what you spend in any currency — everything is converted to rupees at today&apos;s live rate, so you always know your running total.</p>
 
       <div class="trip-controls">
         <div class="field">
           <label for="t-days">Trip days</label>
           <input id="t-days" type="number" min="1" step="1" value="7">
+          <div class="hint">How many days your trip lasts — used for the per-day average.</div>
         </div>
         <div class="field">
           <label for="t-budget">Total budget (₹, optional)</label>
           <input id="t-budget" type="number" min="0" step="any" placeholder="e.g. 80000" inputmode="decimal">
+          <div class="hint">Optional — we&apos;ll show how much of it you&apos;ve spent.</div>
         </div>
         <div class="field">
-          <label for="t-disp">Show totals in</label>
-          <select id="t-disp"></select>
+          <label id="lbl-disp">Show totals in</label>
+          <div id="dd-disp"></div>
+          <div class="hint">Totals are always in ₹, and also shown in this currency.</div>
         </div>
       </div>
 
@@ -298,14 +388,17 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
         <div class="field">
           <label for="e-title">Expense</label>
           <input id="e-title" type="text" placeholder="e.g. Hotel in Dubai" maxlength="60">
+          <div class="hint">A short name you&apos;ll recognise later.</div>
         </div>
         <div class="field">
           <label for="e-amount">Amount</label>
           <input id="e-amount" type="number" min="0" step="any" placeholder="0.00" inputmode="decimal">
+          <div class="hint">The cost in the currency you paid with.</div>
         </div>
         <div class="field">
-          <label for="e-cur">Currency</label>
-          <select id="e-cur"></select>
+          <label id="lbl-ecur">Currency</label>
+          <div id="dd-ecur"></div>
+          <div class="hint">Pick the currency of this expense.</div>
         </div>
         <div class="field">
           <label for="e-cat">Category</label>
@@ -340,17 +433,17 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
         <div class="totalbox"><small>Per day avg</small><div class="v" id="tot-day">₹0</div></div>
       </div>
 
-      <div class="budgetwrap" id="budget-wrap" hidden>
+      <div class="budgetwrap" id="budget-wrap" hidden tabindex="0" data-tip="Your spending against the budget you set. The bar turns amber past 70% and red at 100%.">
         <div class="budgetbar"><div class="budgetfill" id="budget-fill"></div></div>
         <div class="budgetmeta"><span id="budget-text">₹0 of ₹0</span><span id="budget-pct">0%</span></div>
       </div>
 
       <div class="btnrow">
-        <button class="btn btn-accent magnetic" id="t-export">
+        <button class="btn btn-accent magnetic" id="t-export" data-tip="Copies a plain-words summary of your trip spending to the clipboard.">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           Copy summary
         </button>
-        <button class="btn btn-ghost magnetic" id="t-clear">
+        <button class="btn btn-ghost magnetic" id="t-clear" data-tip="Deletes every expense. This cannot be undone.">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
           Clear all
         </button>
@@ -361,23 +454,47 @@ footer.site{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0
   <!-- ============ RATES ============ -->
   <section class="tabpane" id="pane-rates" role="tabpanel" aria-labelledby="tab-rates">
     <div class="card reveal">
-      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Indicative rates <span class="acctick"></span></h2>
-      <p class="sub">Units of INR per 1 unit of foreign currency. Tap any rate to edit — changes save automatically and apply everywhere.</p>
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Currency rates <span class="acctick"></span></h2>
+      <p class="sub">Units of INR per 1 unit of foreign currency — auto-updated from live rates. Tap any rate to set a custom value; custom rates are marked and never overwritten by live updates.</p>
+      <div class="rates-live-row">
+        <span class="live-badge off" id="live-badge" tabindex="0" data-tip="Rates refresh automatically from a public feed on every visit. Tap Refresh rates to update right now."><span class="livedot"></span><span id="live-badge-txt">SYNCING</span></span>
+        <span class="rates-updated" id="rates-updated"></span>
+        <button class="btn btn-ghost btn-sm magnetic" id="rates-refresh" type="button">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.64-6.36M21 3v6h-6"/></svg>
+          Refresh rates
+        </button>
+      </div>
+      <div class="rates-note" id="rates-note" hidden></div>
+      <div class="shimmerbar" id="rates-shimmer" hidden></div>
       <table class="rtable" aria-label="Currency rates versus INR">
         <thead><tr><th>Currency</th><th>Rate (₹)</th><th>Means</th></tr></thead>
         <tbody id="rates-body"></tbody>
       </table>
       <div class="btnrow">
-        <button class="btn btn-ghost magnetic" id="rates-reset">
+        <button class="btn btn-ghost magnetic" id="rates-reset" data-tip="Clears your custom rates and fetches fresh live rates.">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          Reset to seeded rates
+          Reset to live rates
         </button>
       </div>
-      <div class="formula" style="margin-top:16px">These are <b>indicative</b> October-2026 estimates for planning. Banks and cards add their own margins — always confirm live rates before a real payment.</div>
+      <div class="formula" style="margin-top:16px">Rates refresh automatically from a free public feed (open.er-api.com). Banks and cards add their own margins — always confirm before a real payment.</div>
     </div>
   </section>
 
-  <footer class="site">RupeeWise · rates are indicative, not financial advice · your data never leaves this browser</footer>
+  <footer class="site">RupeeWise · live rates via open.er-api.com, not financial advice · your data never leaves this browser</footer>
+</div>
+
+<div class="onb" id="onb" hidden role="dialog" aria-modal="true" aria-labelledby="onb-title">
+  <div class="onb-card">
+    <div class="onb-ico" id="onb-ico" aria-hidden="true"></div>
+    <h3 id="onb-title"></h3>
+    <p id="onb-desc"></p>
+    <div class="onb-dots" id="onb-dots" aria-hidden="true"></div>
+    <div class="onb-btns">
+      <button class="btn btn-ghost" id="onb-back" type="button">Back</button>
+      <button class="btn btn-primary" id="onb-next" type="button">Next</button>
+    </div>
+    <button class="onb-skip" id="onb-skip" type="button">Skip the tour</button>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="status"></div>
@@ -393,15 +510,17 @@ var FINE = window.matchMedia && window.matchMedia("(pointer:fine)").matches;
 /* ================= data ================= */
 var SEED_RATES = { USD:88.5, EUR:96.2, GBP:112.4, AED:24.1, SGD:65.3, JPY:0.59, AUD:57.1, CAD:63.2, CHF:99.8 };
 var CURR = {
-  INR:{name:"Indian Rupee", sym:"₹"}, USD:{name:"US Dollar", sym:"$"}, EUR:{name:"Euro", sym:"€"},
-  GBP:{name:"British Pound", sym:"£"}, AED:{name:"UAE Dirham", sym:"AED"}, SGD:{name:"Singapore Dollar", sym:"S$"},
-  JPY:{name:"Japanese Yen", sym:"¥"}, AUD:{name:"Australian Dollar", sym:"A$"}, CAD:{name:"Canadian Dollar", sym:"C$"},
-  CHF:{name:"Swiss Franc", sym:"CHF"}
+  INR:{name:"Indian Rupee", sym:"₹", flag:"in"}, USD:{name:"US Dollar", sym:"$", flag:"us"}, EUR:{name:"Euro", sym:"€", flag:"eu"},
+  GBP:{name:"British Pound", sym:"£", flag:"gb"}, AED:{name:"UAE Dirham", sym:"AED", flag:"ae"}, SGD:{name:"Singapore Dollar", sym:"S$", flag:"sg"},
+  JPY:{name:"Japanese Yen", sym:"¥", flag:"jp"}, AUD:{name:"Australian Dollar", sym:"A$", flag:"au"}, CAD:{name:"Canadian Dollar", sym:"C$", flag:"ca"},
+  CHF:{name:"Swiss Franc", sym:"CHF", flag:"ch"}
 };
 var ORDER = ["INR","USD","EUR","GBP","AED","SGD","JPY","AUD","CAD","CHF"];
 var CATS = ["Stay","Food","Transport","Shopping","Other"];
-var CAT_COLORS = { Stay:"#8ea2ff", Food:"#e8b07d", Transport:"#6fd3b6", Shopping:"#c79bee", Other:"#9aa3b2" };
-var LS_RATES="rw_rates_v1", LS_EXP="rw_expenses_v1", LS_SET="rw_settings_v1";
+var CAT_COLORS = { Stay:"#B08D57", Food:"#B45309", Transport:"#2F7D5B", Shopping:"#7A5A3B", Other:"#B9AE97" };
+var LS_RATES="rw_rates_v1", LS_EXP="rw_expenses_v1", LS_SET="rw_settings_v1", LS_META="rw_ratemeta_v1";
+var ER_PRIMARY="https://open.er-api.com/v6/latest/USD";
+var ER_FALLBACK="https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json";
 
 function loadJSON(key, fallback){
   try{ var v = localStorage.getItem(key); if(v===null) return fallback; return JSON.parse(v); }
@@ -412,6 +531,11 @@ function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val))
 var rates = loadJSON(LS_RATES, null);
 if(!rates || typeof rates!=="object"){ rates = Object.assign({}, SEED_RATES); saveJSON(LS_RATES, rates); }
 ORDER.forEach(function(c){ if(c!=="INR" && !(rates[c]>0)) rates[c]=SEED_RATES[c]; });
+var rateMeta = loadJSON(LS_META, null);
+if(!rateMeta || typeof rateMeta!=="object" || typeof rateMeta.custom!=="object"){
+  rateMeta = { source:"seed", updatedAt:0, custom:{} };
+}
+function saveMeta(){ saveJSON(LS_META, rateMeta); }
 
 var expenses = loadJSON(LS_EXP, []);
 if(!Array.isArray(expenses)) expenses = [];
@@ -540,21 +664,21 @@ window.addEventListener("resize",function(){
   function size(){ W=window.innerWidth; H=window.innerHeight; cv.width=W*DPR*.5; cv.height=H*DPR*.5; cv.style.width=W+"px"; cv.style.height=H+"px"; }
   size(); window.addEventListener("resize",size);
   var blobs=[
-    {c:"47,39,206",  r:.42, sx:.22, sy:.18, a:0,   sp:.00021, ph:0},
-    {c:"67,59,255",  r:.36, sx:.78, sy:.32, a:.8,  sp:.00016, ph:2.1},
-    {c:"109,88,255", r:.30, sx:.55, sy:.85, a:.55, sp:.00013, ph:4.2},
-    {c:"30,20,120",  r:.5,  sx:.85, sy:.75, a:.5,  sp:.00011, ph:1.2}
+    {c:"176,141,87",  r:.42, sx:.22, sy:.18, a:.5,  sp:.00021, ph:0},
+    {c:"217,200,160", r:.36, sx:.78, sy:.32, a:.45, sp:.00016, ph:2.1},
+    {c:"139,106,62",  r:.30, sx:.55, sy:.85, a:.4,  sp:.00013, ph:4.2},
+    {c:"190,170,130", r:.5,   sx:.85, sy:.75, a:.35, sp:.00011, ph:1.2}
   ];
   function draw(t){
     ctx.setTransform(DPR*.5,0,0,DPR*.5,0,0);
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle="#050315"; ctx.fillRect(0,0,W,H);
-    ctx.globalCompositeOperation="lighter";
+    ctx.fillStyle="#FAF7F0"; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation="multiply";
     blobs.forEach(function(b){
       var x=(b.sx+.09*Math.sin(t*b.sp+b.ph))*W, y=(b.sy+.09*Math.cos(t*b.sp*1.3+b.ph))*H;
       var r=b.r*Math.max(W,H);
       var g=ctx.createRadialGradient(x,y,0,x,y,r);
-      g.addColorStop(0,"rgba("+b.c+","+(.20*b.a+.10)+")");
+      g.addColorStop(0,"rgba("+b.c+","+(.16*b.a+.06)+")");
       g.addColorStop(1,"rgba("+b.c+",0)");
       ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill();
     });
@@ -607,16 +731,16 @@ window.addEventListener("resize",function(){
   var scene=new THREE.Scene();
   var cam=new THREE.PerspectiveCamera(38,SIZE/SIZE,.1,100); cam.position.z=6.2;
   var geo=new THREE.TorusKnotGeometry(1.35,.42,160,24);
-  var mat=new THREE.MeshStandardMaterial({color:0x433bff,metalness:.85,roughness:.28,emissive:0x1a1440,emissiveIntensity:.35});
+  var mat=new THREE.MeshStandardMaterial({color:0xC9A25E,metalness:.9,roughness:.3,emissive:0x3E2F1E,emissiveIntensity:.22});
   var knot=new THREE.Mesh(geo,mat); scene.add(knot);
-  scene.add(new THREE.AmbientLight(0xdedcff,.55));
-  var key=new THREE.DirectionalLight(0xffffff,1.1); key.position.set(4,5,6); scene.add(key);
-  var rim=new THREE.PointLight(0x433bff,2.2,30); rim.position.set(-5,-2,3); scene.add(rim);
+  scene.add(new THREE.AmbientLight(0xfff6e6,.65));
+  var key=new THREE.DirectionalLight(0xffffff,1.0); key.position.set(4,5,6); scene.add(key);
+  var rim=new THREE.PointLight(0xB08D57,2.0,30); rim.position.set(-5,-2,3); scene.add(rim);
   var rupee=null;
   function drawGlyph(){
     var c=document.createElement("canvas"); c.width=c.height=256;
     var g=c.getContext("2d");
-    g.fillStyle="#fbfbfe"; g.font="800 150px Inter,sans-serif";
+    g.fillStyle="#3E2F1E"; g.font="800 150px Inter,sans-serif";
     g.textAlign="center"; g.textBaseline="middle"; g.fillText("₹",128,140);
     var tex=new THREE.CanvasTexture(c);
     rupee=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5),
@@ -642,12 +766,120 @@ window.addEventListener("resize",function(){
 })();
 
 /* ================= converter ================= */
-var fromSel=$("c-from"), toSel=$("c-to"), amtInput=$("c-amount");
-ORDER.forEach(function(c){
-  var o1=document.createElement("option"); o1.value=c; o1.textContent=c+" — "+CURR[c].name; fromSel.appendChild(o1);
-  var o2=document.createElement("option"); o2.value=c; o2.textContent=c+" — "+CURR[c].name; toSel.appendChild(o2);
-});
-fromSel.value="USD"; toSel.value="INR";
+/* ============ custom currency dropdowns: flags + search + keyboard ============ */
+function makeFlag(code, sizeClass){
+  var wrap=document.createElement("span");
+  wrap.className="flagwrap"+(sizeClass?" "+sizeClass:"");
+  var img=document.createElement("img");
+  img.className="flag"; img.alt=""; img.loading="lazy";
+  img.src="https://flagcdn.com/w80/"+CURR[code].flag+".png";
+  img.onerror=function(){
+    while(wrap.firstChild) wrap.removeChild(wrap.firstChild);
+    var fb=document.createElement("span"); fb.className="curdot"; fb.textContent=CURR[code].sym;
+    wrap.appendChild(fb);
+  };
+  wrap.appendChild(img);
+  return wrap;
+}
+
+function CurDropdown(mountId, initial, label){
+  var mount=$(mountId);
+  var self={ _value:CURR[initial]?initial:"USD", _listeners:[] };
+  Object.defineProperty(self,"value",{
+    get:function(){ return self._value; },
+    set:function(v){ if(CURR[v]){ var changed=(v!==self._value); self._value=v; paint(); if(changed) fire(); } }
+  });
+  self.addEventListener=function(t,fn){ if(t==="change"||t==="input") self._listeners.push(fn); };
+  function fire(){ for(var i=0;i<self._listeners.length;i++){ try{ self._listeners[i]({target:self}); }catch(e){} } }
+
+  mount.className="curdd";
+  var trig=document.createElement("button");
+  trig.type="button"; trig.className="dd-trigger";
+  trig.setAttribute("aria-haspopup","listbox"); trig.setAttribute("aria-expanded","false");
+  var panel=document.createElement("div"); panel.className="dd-panel"; panel.setAttribute("role","listbox");
+  var search=document.createElement("input");
+  search.className="dd-search"; search.setAttribute("type","text");
+  search.setAttribute("placeholder","Search currency…"); search.setAttribute("aria-label","Search currencies");
+  var list=document.createElement("div"); list.className="dd-list";
+  panel.appendChild(search); panel.appendChild(list);
+  mount.appendChild(trig); mount.appendChild(panel);
+
+  var opts=[], hl=-1;
+  function paint(){
+    while(trig.firstChild) trig.removeChild(trig.firstChild);
+    trig.appendChild(makeFlag(self._value));
+    var code=document.createElement("span"); code.className="code"; code.textContent=self._value;
+    var sym=document.createElement("span"); sym.className="sym";
+    sym.textContent=CURR[self._value].sym+" \u00b7 "+CURR[self._value].name;
+    var ch=document.createElement("span"); ch.className="chev";
+    ch.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+    trig.appendChild(code); trig.appendChild(sym); trig.appendChild(ch);
+    trig.setAttribute("aria-label",(label||"Choose currency")+": "+self._value+", "+CURR[self._value].name);
+  }
+  function setHl(i){
+    hl=i;
+    for(var j=0;j<list.children.length;j++){
+      if(list.children[j].classList) list.children[j].classList.toggle("hl", j===i);
+    }
+    var el=list.children[i];
+    if(el && el.scrollIntoView) el.scrollIntoView({block:"nearest"});
+  }
+  function renderOpts(){
+    while(list.firstChild) list.removeChild(list.firstChild);
+    var q=search.value.trim().toLowerCase();
+    opts=ORDER.filter(function(c){
+      return !q || c.toLowerCase().indexOf(q)>=0 || CURR[c].name.toLowerCase().indexOf(q)>=0;
+    });
+    opts.forEach(function(c,i){
+      var o=document.createElement("div");
+      o.className="dd-opt"; o.setAttribute("role","option");
+      o.setAttribute("aria-selected",c===self._value?"true":"false");
+      o.appendChild(makeFlag(c));
+      var mid=document.createElement("span"); mid.className="ocode";
+      mid.innerHTML="<b>"+c+"</b> <span class='nm'>"+esc(CURR[c].name)+"</span>";
+      var s=document.createElement("span"); s.className="osym"; s.textContent=CURR[c].sym;
+      o.appendChild(mid); o.appendChild(s);
+      (function(cc,ii){
+        o.addEventListener("click",function(){ self.value=cc; close(); });
+        o.addEventListener("mousemove",function(){ setHl(ii); });
+      })(c,i);
+      list.appendChild(o);
+    });
+    setHl(Math.max(0,opts.indexOf(self._value)));
+  }
+  function onDocClick(e){ if(!mount.contains(e.target)) close(true); }
+  function open(){
+    if(mount.classList.contains("open")) return;
+    mount.classList.add("open"); trig.setAttribute("aria-expanded","true");
+    search.value=""; renderOpts();
+    document.addEventListener("click",onDocClick);
+    setTimeout(function(){ try{search.focus();}catch(e){} },0);
+  }
+  function close(silent){
+    if(!mount.classList.contains("open")) return;
+    mount.classList.remove("open"); trig.setAttribute("aria-expanded","false");
+    document.removeEventListener("click",onDocClick);
+    if(!silent){ try{trig.focus();}catch(e){} }
+  }
+  trig.addEventListener("click",function(e){ e.stopPropagation(); if(mount.classList.contains("open")) close(); else open(); });
+  trig.addEventListener("keydown",function(e){
+    if(e.key==="ArrowDown"||e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); }
+  });
+  search.addEventListener("input",renderOpts);
+  search.addEventListener("keydown",function(e){
+    if(e.key==="ArrowDown"){ e.preventDefault(); setHl(Math.min(hl+1,opts.length-1)); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); setHl(Math.max(hl-1,0)); }
+    else if(e.key==="Enter"){ e.preventDefault(); if(opts[hl]){ self.value=opts[hl]; close(); } }
+    else if(e.key==="Escape"){ e.preventDefault(); close(); }
+  });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") close(true); });
+  paint();
+  return self;
+}
+
+var amtInput=$("c-amount");
+var fromSel=CurDropdown("dd-from","USD","From currency");
+var toSel=CurDropdown("dd-to","INR","To currency");
 
 var lastShown=0;
 function convert(withSweep){
@@ -662,6 +894,10 @@ function convert(withSweep){
   if(f!=="INR"&&t!=="INR") unitLine += "  ·  1 "+f+" = ₹"+fmtRate(rates[f]);
   $("r-rate").textContent = unitLine;
   $("r-formula").innerHTML = "Formula: <code>"+esc(inrFmt.format(amt))+" × "+esc(fmtRate(rates[f]||1))+" ÷ "+esc(fmtRate(rates[t]||1))+"</code> — amount × from-rate ÷ to-rate, via INR.";
+  var srcTxt=(rateMeta.source==="live"&&rateMeta.updatedAt>0)
+    ? ((rateMeta.custom[f]||rateMeta.custom[t])?"your custom rate":"today's live rate")
+    : "the indicative rate";
+  $("r-means").textContent="What this means: "+inrFmt.format(amt)+" "+CURR[f].name+" is worth about "+fmtMoney(out,t)+" at "+srcTxt+".";
   if(withSweep!==false) sweep();
 }
 ["input","change"].forEach(function(ev){
@@ -679,6 +915,98 @@ $("c-swap").addEventListener("click",function(){
   $("c-chips").appendChild(b);
 });
 
+/* ================= live rates engine ================= */
+/* API payloads quote vs USD: 1 USD = r[X] of X. So 1 unit of X = (r.INR / r[X]) INR. */
+function ratesFromErApi(payload){
+  if(!payload || payload.result!=="success" || !payload.rates) return null;
+  var r=payload.rates, inr=r.INR;
+  if(!(inr>0)) return null;
+  var out={};
+  for(var i=0;i<ORDER.length;i++){ var c=ORDER[i]; if(c==="INR") continue; if(!(r[c]>0)) return null; out[c]=inr/r[c]; }
+  return out;
+}
+function ratesFromFawaz(payload){
+  if(!payload || !payload.usd || typeof payload.usd!=="object") return null;
+  var u=payload.usd, inr=u.inr;
+  if(!(inr>0)) return null;
+  var out={};
+  for(var i=0;i<ORDER.length;i++){ var c=ORDER[i]; if(c==="INR") continue; if(!(u[c.toLowerCase()]>0)) return null; out[c]=inr/u[c.toLowerCase()]; }
+  return out;
+}
+function fetchJSON(url, ms){
+  return new Promise(function(res, rej){
+    var done=false;
+    var to=setTimeout(function(){ if(!done){ done=true; rej(new Error("timeout")); } }, ms||12000);
+    fetch(url).then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+      .then(function(j){ if(!done){ done=true; clearTimeout(to); res(j); } })
+      .catch(function(e){ if(!done){ done=true; clearTimeout(to); rej(e); } });
+  });
+}
+var fetchingRates=false;
+function setRefreshBusy(b){
+  var r=$("rates-refresh"); if(!r) return;
+  r.disabled=b; r.setAttribute("aria-busy", b?"true":"false");
+  r.innerHTML = b ? "Refreshing…"
+    : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.64-6.36M21 3v6h-6"/></svg> Refresh rates';
+  var shim=$("rates-shimmer"); if(shim) shim.hidden=!b;
+}
+function fmtUpdated(ms){
+  if(!(ms>0)) return "";
+  try{ return new Date(ms).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",hour12:false}); }
+  catch(e){ return ""; }
+}
+function updateRatesStatus(){
+  var badge=$("live-badge"), txt=$("live-badge-txt"), upd=$("rates-updated"), note=$("rates-note");
+  if(!badge) return;
+  var customCount=Object.keys(rateMeta.custom).filter(function(c){ return rateMeta.custom[c]; }).length;
+  if(rateMeta.source==="live" && rateMeta.updatedAt>0){
+    badge.classList.remove("off"); txt.textContent="LIVE";
+    upd.textContent="Updated "+fmtUpdated(rateMeta.updatedAt)+(customCount? " \u00b7 "+customCount+" custom":"");
+    note.hidden=true; note.textContent="";
+  }else{
+    badge.classList.add("off");
+    txt.textContent = fetchingRates ? "SYNCING" : "OFFLINE";
+    upd.textContent = rateMeta.updatedAt>0 ? "Last live update "+fmtUpdated(rateMeta.updatedAt) : "Indicative seeded rates";
+    note.hidden=false;
+    note.textContent = rateMeta.updatedAt>0
+      ? "Couldn\u2019t reach the live rate feed \u2014 showing your last fetched rates. Tap Refresh to retry."
+      : "Couldn\u2019t reach the live rate feed \u2014 showing indicative seeded rates. Tap Refresh to retry.";
+  }
+}
+function applyLiveRates(live){
+  var changed=false;
+  ORDER.forEach(function(c){
+    if(c==="INR") return;
+    if(!rateMeta.custom[c] && live[c]>0){ rates[c]=live[c]; changed=true; }
+  });
+  if(changed) saveJSON(LS_RATES, rates);
+  rateMeta.source="live"; rateMeta.updatedAt=Date.now(); saveMeta();
+  renderRates(); convert(false); renderTrip();
+  return changed;
+}
+function refreshLiveRates(manual){
+  if(fetchingRates) return Promise.resolve(false);
+  fetchingRates=true; setRefreshBusy(true); updateRatesStatus();
+  return fetchJSON(ER_PRIMARY).then(function(j){ return ratesFromErApi(j); }, function(){ return null; })
+    .then(function(live){
+      if(live) return { live: live };
+      return fetchJSON(ER_FALLBACK).then(
+        function(j){ return { live: ratesFromFawaz(j) }; },
+        function(){ return { live: null }; });
+    })
+    .then(function(o){
+      fetchingRates=false; setRefreshBusy(false);
+      if(o.live){
+        applyLiveRates(o.live);
+        if(manual) toast("Rates updated \u2014 live");
+      }else{
+        updateRatesStatus();
+        if(manual) toast("Couldn\u2019t reach rate servers \u2014 showing saved rates");
+      }
+      return !!o.live;
+    });
+}
+
 /* ================= rates tab ================= */
 function renderRates(){
   var tb=$("rates-body"); tb.innerHTML="";
@@ -686,7 +1014,11 @@ function renderRates(){
     if(c==="INR") return;
     var tr=document.createElement("tr");
     var td1=document.createElement("td");
-    td1.innerHTML='<span class="rcode"><span class="curdot">'+c.slice(0,2)+'</span><span>'+c+'<br><span class="rname">'+esc(CURR[c].name)+'</span></span></span>';
+    var rc=document.createElement("span"); rc.className="rcode";
+    rc.appendChild(makeFlag(c));
+    var tx=document.createElement("span");
+    tx.innerHTML=c+'<br><span class="rname">'+esc(CURR[c].name)+'</span>';
+    rc.appendChild(tx); td1.appendChild(rc);
     var td2=document.createElement("td");
     var inp=document.createElement("input");
     inp.className="rateinput"; inp.type="number"; inp.min="0"; inp.step="any"; inp.value=rates[c];
@@ -694,24 +1026,42 @@ function renderRates(){
     inp.addEventListener("change",function(){
       var v=parseFloat(inp.value);
       if(!(v>0)){ toast("Rate must be a positive number"); inp.value=rates[c]; return; }
-      rates[c]=v; saveJSON(LS_RATES,rates); convert(false); renderTrip(); toast(c+" rate updated to ₹"+fmtRate(v));
+      rates[c]=v; saveJSON(LS_RATES,rates);
+      rateMeta.custom[c]=true; saveMeta();
+      renderRates(); convert(false); renderTrip(); toast(c+" custom rate saved \u2014 \u20b9"+fmtRate(v));
     });
     td2.appendChild(inp);
     var td3=document.createElement("td"); td3.className="runit"; td3.textContent="1 "+c+" = ₹"+fmtRate(rates[c]);
+    if(rateMeta.custom[c]){
+      var tag=document.createElement("button"); tag.type="button"; tag.className="customtag"; tag.textContent="CUSTOM";
+      tag.title="You set this rate manually — tap to use the live rate instead";
+      tag.setAttribute("data-tip","You set this rate by hand — tap to switch this currency back to the live rate.");
+      tag.setAttribute("aria-label","Reset "+c+" to the live rate");
+      (function(cc){ tag.addEventListener("click",function(){
+        delete rateMeta.custom[cc]; saveMeta(); refreshLiveRates(true);
+      }); })(c);
+      td3.appendChild(tag);
+    }
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tb.appendChild(tr);
   });
+  updateRatesStatus();
 }
 $("rates-reset").addEventListener("click",function(){
-  rates=Object.assign({},SEED_RATES); saveJSON(LS_RATES,rates);
-  renderRates(); convert(false); renderTrip(); toast("Rates reset to seeded values");
+  rateMeta.custom={}; saveMeta(); updateRatesStatus();
+  refreshLiveRates(false).then(function(ok){
+    if(!ok){
+      rates=Object.assign({},SEED_RATES); saveJSON(LS_RATES,rates);
+      rateMeta.source="seed"; rateMeta.updatedAt=0; saveMeta();
+      renderRates(); convert(false); renderTrip();
+      toast("Offline \u2014 reset to seeded rates");
+    }else toast("Rates reset to live");
+  });
 });
+$("rates-refresh").addEventListener("click",function(){ refreshLiveRates(true); });
 
 /* ================= trip planner ================= */
-var eCur=$("e-cur"), tDisp=$("t-disp");
-ORDER.forEach(function(c){
-  var o=document.createElement("option"); o.value=c; o.textContent=c+" — "+CURR[c].name; eCur.appendChild(o);
-  var o2=document.createElement("option"); o2.value=c; o2.textContent=c; tDisp.appendChild(o2);
-});
+var eCur=CurDropdown("dd-ecur","USD","Expense currency");
+var tDisp=CurDropdown("dd-disp",dispCur,"Display currency");
 eCur.value="USD"; tDisp.value=dispCur;
 $("t-days").value=tripDays;
 if(budget>0) $("t-budget").value=budget;
@@ -771,7 +1121,7 @@ function renderTrip(){
   expenses.forEach(function(x){ totalINR+=toINR(x.amount,x.cur); });
 
   if(!expenses.length){
-    list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg><br>No expenses yet — add your first one above.</div>';
+    list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg><b>Your trip budget starts here</b><p>No expenses yet. Add your first one above — name it, enter the amount in the currency you paid, pick a category. We convert everything to rupees automatically.</p></div>';
   }
   expenses.forEach(function(x){
     var inr=toINR(x.amount,x.cur);
@@ -779,6 +1129,8 @@ function renderTrip(){
     div.innerHTML='<span class="cat cat-'+esc(x.cat)+'">'+esc(x.cat)+'</span>'+
       '<div class="info"><b>'+esc(x.title)+'</b><small>'+esc(fmtMoney(x.amount,x.cur))+" "+esc(x.cur)+'</small></div>'+
       '<span class="inr">₹'+inrFmt.format(inr)+'</span>';
+    var eflag=makeFlag(x.cur,"flag-sm"); eflag.style.flex="none";
+    div.insertBefore(eflag,div.firstChild);
     var del=document.createElement("button"); del.className="delbtn"; del.title="Delete expense"; del.setAttribute("aria-label","Delete "+x.title);
     del.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>';
     del.addEventListener("click",(function(id){return function(){
@@ -807,7 +1159,7 @@ function renderTrip(){
     var pct=Math.min(totalINR/budget*100,100);
     var fill=$("budget-fill"); fill.style.width=pct+"%";
     fill.style.background = pct>=100 ? "var(--danger)"
-      : (pct>=70 ? "linear-gradient(90deg,#b45309,#e8a13d)" : "linear-gradient(90deg,var(--primary),var(--accent))");
+      : (pct>=70 ? "linear-gradient(90deg,#B45309,#e8a13d)" : "linear-gradient(90deg,var(--bronze-d),var(--bronze-lt))");
     $("budget-text").textContent="₹"+inrFmt.format(totalINR)+" of ₹"+inrFmt.format(budget);
     $("budget-pct").textContent=Math.round(totalINR/budget*100)+"% used";
   } else { bw.hidden=true; }
@@ -833,7 +1185,7 @@ $("t-clear").addEventListener("click",function(){
 $("t-export").addEventListener("click",function(){
   if(!expenses.length){ toast("Add an expense first"); return; }
   var totalINR=expenses.reduce(function(s,x){return s+toINR(x.amount,x.cur);},0);
-  var lines=["RupeeWise trip summary ("+new Date().toLocaleDateString("en-IN")+"):",""];
+  var lines=["Here is your trip spending in plain words — every expense converted to rupees at today's rate:","RupeeWise trip summary ("+new Date().toLocaleDateString("en-IN")+"):",""];
   var byCat={};
   expenses.forEach(function(x){
     var inr=toINR(x.amount,x.cur);
@@ -845,7 +1197,7 @@ $("t-export").addEventListener("click",function(){
   lines.push("","Total: ₹"+inrFmt.format(totalINR)+" (≈ "+fmtMoney(fromINR(totalINR,dispCur),dispCur)+" "+dispCur+")",
              "Per day ("+tripDays+" days): ₹"+inrFmt.format(totalINR/(tripDays>=1?tripDays:1)));
   if(budget>0) lines.push("Budget: ₹"+inrFmt.format(budget)+" — "+Math.round(totalINR/budget*100)+"% used");
-  lines.push("","Rates are indicative (Oct 2026 estimates).");
+  lines.push("","Rates: "+(rateMeta.source==="live"&&rateMeta.updatedAt>0?"live, updated "+fmtUpdated(rateMeta.updatedAt):"indicative")+".");
   var text=lines.join("\n");
   function done(){ toast("Summary copied to clipboard"); }
   if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -859,9 +1211,56 @@ function fallbackCopy(text){
   document.body.removeChild(ta);
 }
 
+/* ============ first-run onboarding: converter -> trip planner -> rates ============ */
+var LS_ONB="rw_onboarded";
+var ONB_STEPS=[
+  {tab:"converter", t:"Convert with live rates",
+   d:"Type an amount, pick the two currencies with the flag pickers, and see the conversion instantly — with what it means in plain words, and the exact rate used.",
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>'},
+  {tab:"trip", t:"Plan your trip budget",
+   d:"Log each expense in the currency you paid with. Everything converts to rupees automatically — totals, per-day average, a spending chart, and a budget bar.",
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.5-2.5v-13L9 7l6-2.5L20.5 7v13L15 17.5 9 20zM9 7v13M15 4.5v13"/></svg>'},
+  {tab:"rates", t:"Rates update themselves",
+   d:"The Rates tab refreshes from a live feed on every visit. Tap any rate to set your own custom value — custom rates are marked CUSTOM and never overwritten.",
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>'}
+];
+function showOnboarding(){
+  var onb=$("onb"); if(!onb) return;
+  var idx=0;
+  function paint(){
+    var s=ONB_STEPS[idx];
+    $("onb-ico").innerHTML=s.icon;
+    $("onb-title").textContent=s.t;
+    $("onb-desc").textContent=s.d;
+    var dots=$("onb-dots"); dots.innerHTML="";
+    ONB_STEPS.forEach(function(_,i){
+      var d=document.createElement("span"); if(i===idx) d.className="on"; dots.appendChild(d);
+    });
+    $("onb-back").style.visibility=idx===0?"hidden":"visible";
+    $("onb-next").textContent=idx===ONB_STEPS.length-1?"Got it":"Next";
+    showTab(s.tab,false);
+    if(M&&!RM){ M.animate(".onb-card",{opacity:[0,1],y:[16,0]},{duration:.4,easing:[.2,.8,.2,1]}); }
+  }
+  function escHandler(e){ if(e.key==="Escape") done(); }
+  function done(){
+    onb.hidden=true; saveJSON(LS_ONB,true);
+    document.removeEventListener("keydown",escHandler);
+  }
+  $("onb-next").onclick=function(){ if(idx>=ONB_STEPS.length-1) done(); else { idx++; paint(); } };
+  $("onb-back").onclick=function(){ if(idx>0){ idx--; paint(); } };
+  $("onb-skip").onclick=done;
+  document.addEventListener("keydown",escHandler);
+  onb.hidden=false; paint();
+}
+function initOnboarding(){
+  if(!loadJSON(LS_ONB,false)){ setTimeout(showOnboarding,700); }
+  var tb=$("tour-btn"); if(tb) tb.addEventListener("click",showOnboarding);
+}
+
 /* ================= init ================= */
 renderRates(); renderTrip(); convert(false);
-motionIn(); magnetic();
+refreshLiveRates(false); /* background: cached rates show instantly, live rates refresh in */
+motionIn(); magnetic(); initOnboarding();
 if(M && !RM){
   window.addEventListener("load",function(){ moveIndicator(
     tabNames.filter(function(n){return $("tab-"+n).classList.contains("active");})[0]||"converter"
@@ -869,6 +1268,14 @@ if(M && !RM){
 } else {
   moveIndicator(tabNames.filter(function(n){return $("tab-"+n).classList.contains("active");})[0]||"converter");
 }
+window.__rw = { ratesFromErApi: ratesFromErApi, ratesFromFawaz: ratesFromFawaz,
+  refreshLiveRates: refreshLiveRates, applyLiveRates: applyLiveRates,
+  convert: convert, renderTrip: renderTrip, renderRates: renderRates,
+  showTab: showTab, showOnboarding: showOnboarding,
+  CurDropdown: CurDropdown, makeFlag: makeFlag, ORDER: ORDER, CURR: CURR,
+  get rates(){ return rates; }, get rateMeta(){ return rateMeta; },
+  debug: { get fromSel(){ return fromSel; }, get toSel(){ return toSel; },
+           get eCur(){ return eCur; }, get tDisp(){ return tDisp; } } };
 })();
 </script>
 </body>
